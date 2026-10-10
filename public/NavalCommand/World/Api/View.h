@@ -6,16 +6,18 @@
 #include <string>
 #include <vector>
 
-namespace NavalCommand::World::Api {
-struct View {
-	std::string sessionId;
-	std::string observerId;
-	bool ready{};
-	bool truncated{};
-	std::uint64_t version{};
-	double operationalSeconds{};
-	std::vector<Unit> units;
-	std::vector<Track> tracks;
-	std::vector<Facility> facilities;
-};
+namespace NavalCommand::World::Api
+{
+	struct View
+	{
+		std::string sessionId;
+		std::string observerId;
+		bool ready{};
+		bool truncated{};
+		std::uint64_t version{};
+		double operationalSeconds{};
+		std::vector<Unit> units;
+		std::vector<Track> tracks;
+		std::vector<Facility> facilities;
+	};
 } // namespace NavalCommand::World::Api

@@ -8,7 +8,8 @@ static_assert(std::is_aggregate_v<Orders::Result>);
 static_assert(static_cast<int>(Orders::Stage::MovementObserved) == 4);
 static_assert(static_cast<int>(Orders::Availability::Unsupported) == 3);
 
-int main() {
+int main()
+{
 	Orders::Request request{"session", "request", "unit", 7, Orders::Waypoint{61.96, -10.37}};
 	Orders::Result result{"session", "request", Orders::Stage::NativeTaskCreated, "", 1.0, std::nullopt};
 	Orders::Eligibility eligibility{"waypoint", Orders::Availability::Executable, "", "degrees"};
