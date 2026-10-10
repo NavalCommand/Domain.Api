@@ -8,8 +8,6 @@
 
 namespace NavalCommand::World::Api
 {
-	using Eligibility = NavalCommand::Orders::Api::Eligibility;
-
 	struct Unit
 	{
 		std::string id;
@@ -17,7 +15,7 @@ namespace NavalCommand::World::Api
 		Position position;
 		std::optional<double> speedMetersPerSecond;
 		double sampledAtSeconds{};
-		std::vector<Eligibility> orders;
+		std::vector<Orders::Api::Eligibility> orders;
 		std::vector<Orders::Api::RoutePoint> plannedRoute;
 		bool routeInspected{};
 		std::optional<bool> airborne;
