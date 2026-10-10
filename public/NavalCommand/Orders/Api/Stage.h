@@ -6,6 +6,11 @@ enum class Stage {
 	Received,
 	Rejected,
 	NativeTaskCreated,
-	MovementObserved
+	MovementObserved,
+	RouteMutated,
+	ExecutionUnknown,
+	Preparing,
+	AircraftSpawned,
+	Airborne
 };
 } // namespace NavalCommand::Orders::Api

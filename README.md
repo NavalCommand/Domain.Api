@@ -1,5 +1,7 @@
 # Domain.Api
 
+Operational contracts include explicit waypoint replace/append modes, copied planned-route receipts, generic facility launch arguments and distinct preparation/spawn/airborne stages. Backend support and current executable eligibility remain separate; omitted waypoint mode retains legacy idle-only meaning. No game types or transport dependencies are introduced. See [contract implementation](../Docs/Tasks/006/TASK006_IMPLEMENTATION.md).
+
 Operational C++ value contracts, independent of transport, serialization, simulators and hosting. Read the authoritative [Docs rules](../Docs/AGENTS.md), [architecture](../Docs/ARCHITECTURE.md), [module structure](../Docs/MODULE_STRUCTURE.md) and [code style](../Docs/CODE_STYLE.md) before changes.
 
 `Orders.Api` and `World.Api` are separate header-only INTERFACE CMake targets defined in `src/`. `World.Api` transitively links `Orders.Api` for per-unit eligibility; orders has no world dependency. Public namespace-mirrored headers live under `public/NavalCommand/{Orders,World}/Api/`. Existing include spellings, aggregates, defaults and enum values are preserved. `Order.h` remains the compatibility umbrella; existing camelCase public members are deliberate compatibility exceptions.

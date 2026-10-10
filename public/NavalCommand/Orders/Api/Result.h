@@ -1,7 +1,9 @@
 #pragma once
 #include <NavalCommand/Orders/Api/Stage.h>
+#include <NavalCommand/Orders/Api/Waypoint.h>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace NavalCommand::Orders::Api {
 struct Result {
@@ -11,5 +13,9 @@ struct Result {
 	std::string reason;
 	double sampledAtSeconds{};
 	std::optional<double> displacementMeters;
+	std::vector<RoutePoint> routeBefore;
+	std::vector<RoutePoint> routeAfter;
+	RouteMode routeMode{};
+	std::string spawnedEntityId;
 };
 } // namespace NavalCommand::Orders::Api

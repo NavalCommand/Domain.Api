@@ -1,5 +1,6 @@
 #pragma once
 #include <NavalCommand/Orders/Api/Eligibility.h>
+#include <NavalCommand/Orders/Api/Waypoint.h>
 #include <NavalCommand/World/Api/Position.h>
 #include <optional>
 #include <string>
@@ -14,5 +15,8 @@ struct Unit {
 	std::optional<double> speedMetersPerSecond;
 	double sampledAtSeconds{};
 	std::vector<Eligibility> orders;
+	std::vector<Orders::Api::RoutePoint> plannedRoute;
+	bool routeInspected{};
+	std::optional<bool> airborne;
 };
 } // namespace NavalCommand::World::Api

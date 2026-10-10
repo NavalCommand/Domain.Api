@@ -1,4 +1,5 @@
 #pragma once
+#include <NavalCommand/Orders/Api/FacilityLaunch.h>
 #include <NavalCommand/Orders/Api/Waypoint.h>
 #include <cstdint>
 #include <optional>
@@ -11,5 +12,6 @@ struct Request {
 	std::string entityId;
 	std::uint64_t basedOnVersion{};
 	std::optional<Waypoint> waypoint;
+	std::optional<FacilityLaunch> facilityLaunch;
 };
 } // namespace NavalCommand::Orders::Api
