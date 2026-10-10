@@ -5,17 +5,19 @@
 #include <string>
 #include <vector>
 
-namespace NavalCommand::Orders::Api {
-struct Result {
-	std::string sessionId;
-	std::string requestId;
-	Stage stage{};
-	std::string reason;
-	double sampledAtSeconds{};
-	std::optional<double> displacementMeters;
-	std::vector<RoutePoint> routeBefore;
-	std::vector<RoutePoint> routeAfter;
-	RouteMode routeMode{};
-	std::string spawnedEntityId;
-};
+namespace NavalCommand::Orders::Api
+{
+	struct Result
+	{
+		std::string sessionId;
+		std::string requestId;
+		Stage stage{};
+		std::string reason;
+		double sampledAtSeconds{};
+		std::optional<double> displacementMeters;
+		std::vector<RoutePoint> routeBefore;
+		std::vector<RoutePoint> routeAfter;
+		RouteMode routeMode{};
+		std::string spawnedEntityId;
+	};
 } // namespace NavalCommand::Orders::Api
