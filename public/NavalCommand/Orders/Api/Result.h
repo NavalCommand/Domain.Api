@@ -1,6 +1,7 @@
 #pragma once
+#include <NavalCommand/Orders/Api/RouteMode.h>
+#include <NavalCommand/Orders/Api/RoutePoint.h>
 #include <NavalCommand/Orders/Api/Stage.h>
-#include <NavalCommand/Orders/Api/Waypoint.h>
 #include <optional>
 #include <string>
 #include <vector>
@@ -20,4 +21,4 @@ namespace NavalCommand::Orders::Api
 		RouteMode routeMode{};
 		std::string spawnedEntityId;
 	};
-} // namespace NavalCommand::Orders::Api
+}

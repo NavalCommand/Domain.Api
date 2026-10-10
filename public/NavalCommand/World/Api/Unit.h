@@ -1,6 +1,6 @@
 #pragma once
 #include <NavalCommand/Orders/Api/Eligibility.h>
-#include <NavalCommand/Orders/Api/Waypoint.h>
+#include <NavalCommand/Orders/Api/RoutePoint.h>
 #include <NavalCommand/World/Api/Position.h>
 #include <optional>
 #include <string>
@@ -20,4 +20,4 @@ namespace NavalCommand::World::Api
 		bool routeInspected{};
 		std::optional<bool> airborne;
 	};
-} // namespace NavalCommand::World::Api
+}
