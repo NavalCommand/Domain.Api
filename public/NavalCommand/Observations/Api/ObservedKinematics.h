@@ -1,16 +1,16 @@
 #pragma once
+#include <NavalCommand/Observations/Api/ObservedPosition.h>
 #include <NavalCommand/Physics/Api/MetersPerSecond.h>
-#include <NavalCommand/Physics/Api/Position.h>
 #include <NavalCommand/Physics/Api/Radians.h>
-#include <NavalCommand/Uncertainty/Api/Knowledge.h>
+#include <NavalCommand/Uncertainty/Api/Exact.h>
 
 namespace NavalCommand::Observations::Api
 {
 	struct ObservedKinematics
 	{
-		Uncertainty::Api::Knowledge<Physics::Api::Position> Position;
-		Uncertainty::Api::Knowledge<Physics::Api::MetersPerSecond> Speed;
-		Uncertainty::Api::Knowledge<Physics::Api::Radians> Heading;
-		Uncertainty::Api::Knowledge<Physics::Api::Radians> CourseOverGround;
+		ObservedPosition Position;
+		Uncertainty::Api::Exact<Physics::Api::MetersPerSecond> Speed;
+		Uncertainty::Api::Exact<Physics::Api::Radians> Heading;
+		Uncertainty::Api::Exact<Physics::Api::Radians> CourseOverGround;
 	};
 }

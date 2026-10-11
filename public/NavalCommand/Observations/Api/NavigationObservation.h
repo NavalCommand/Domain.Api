@@ -1,6 +1,6 @@
 #pragma once
 #include <NavalCommand/Physics/Api/Position.h>
-#include <NavalCommand/Uncertainty/Api/Knowledge.h>
+#include <NavalCommand/Uncertainty/Api/Exact.h>
 #include <string>
 #include <vector>
 
@@ -14,6 +14,6 @@ namespace NavalCommand::Observations::Api
 
 	struct NavigationObservation
 	{
-		Uncertainty::Api::Knowledge<std::vector<ObservedRoutePoint>> PlannedRoute;
+		Uncertainty::Api::Exact<std::vector<ObservedRoutePoint>> PlannedRoute;
 	};
 }

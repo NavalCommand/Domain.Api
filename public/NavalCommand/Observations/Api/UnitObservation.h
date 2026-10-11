@@ -4,26 +4,30 @@
 #include <NavalCommand/Observations/Api/AirOperationsObservation.h>
 #include <NavalCommand/Observations/Api/EquipmentObservation.h>
 #include <NavalCommand/Observations/Api/NavigationObservation.h>
+#include <NavalCommand/Observations/Api/ObservationContributor.h>
 #include <NavalCommand/Observations/Api/ObservationId.h>
-#include <NavalCommand/Observations/Api/ObservationMetadata.h>
 #include <NavalCommand/Observations/Api/ObservedKinematics.h>
-#include <NavalCommand/Uncertainty/Api/Knowledge.h>
-#include <NavalCommand/Uncertainty/Api/ObservedCollection.h>
+#include <NavalCommand/Physics/Api/Seconds.h>
+#include <NavalCommand/Uncertainty/Api/Exact.h>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace NavalCommand::Observations::Api
 {
 	struct UnitObservation
 	{
 		ObservationId Identity;
-		Uncertainty::Api::Knowledge<std::string> Name;
-		Uncertainty::Api::Knowledge<Catalog::Api::UnitTypeId> Type;
+		Uncertainty::Api::Exact<std::string> Name;
+		Uncertainty::Api::Exact<Catalog::Api::UnitTypeId> Type;
 		ObservedKinematics Kinematics;
-		Uncertainty::Api::ObservedCollection<EquipmentObservation> Equipment;
+		// Only currently reported items; an empty list is not evidence of an exhaustive inventory.
+		std::vector<EquipmentObservation> Equipment;
 		std::optional<NavigationObservation> Navigation;
 		std::optional<AircraftObservation> Aircraft;
 		std::optional<AirOperationsObservation> AirOperations;
-		ObservationMetadata Evidence;
+		// Only source-supported attribution; empty means no contributors reported.
+		std::vector<ObservationContributor> Contributors;
+		Uncertainty::Api::Exact<Physics::Api::Seconds> MeasuredAt;
 	};
 }

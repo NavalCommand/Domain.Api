@@ -6,7 +6,6 @@
 namespace Orders = NavalCommand::Orders::Api;
 namespace Observations = NavalCommand::Observations::Api;
 namespace Catalog = NavalCommand::Catalog::Api;
-namespace Uncertainty = NavalCommand::Uncertainty::Api;
 namespace Physics = NavalCommand::Physics::Api;
 
 static_assert(std::is_aggregate_v<Orders::Request>);
@@ -23,16 +22,16 @@ int main()
 	overlay.Observer = request.Observer;
 	overlay.Observation = request.Observation;
 	overlay.BasedOnVersion = request.BasedOnVersion;
-	using Discovery = Uncertainty::ObservedCollection<Orders::Eligibility>;
-	overlay.Orders = {Discovery::Coverage::Complete,
-		{{Orders::OrderKind::ReplaceRoute, Orders::Availability::Executable, "", std::nullopt},
-		 {Orders::OrderKind::LaunchAircraft, Orders::Availability::Executable, "", std::get<Orders::LaunchAircraft>(launch.Payload)}}};
+	// Only listed rows carry availability; a missing row is not executable.
+	overlay.Orders = {
+		{Orders::OrderKind::ReplaceRoute, Orders::Availability::Executable, "", std::nullopt},
+		{Orders::OrderKind::LaunchAircraft, Orders::Availability::Executable, "", std::get<Orders::LaunchAircraft>(launch.Payload)}};
 	Orders::Result result;
 	result.Observer = request.Observer;
 	result.SpawnedObservation = Observations::ObservationId{"contact-spawned"};
 	result.RouteBefore.push_back({{{61.96}, {-10.37}, std::nullopt}, "harbor"});
 	result.RouteAfter.push_back({{{62.0}, {-10.3}, std::nullopt}, "waypoint"});
-	return overlay.Observation == request.Observation && overlay.Orders.Items().size() == 2 &&
+	return overlay.Observation == request.Observation && overlay.Orders.size() == 2 &&
 		std::holds_alternative<Orders::LaunchAircraft>(launch.Payload) &&
 		result.SpawnedObservation.has_value() && result.RouteAfter[0].Label == "waypoint" ? 0 : 1;
 }

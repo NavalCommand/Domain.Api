@@ -2,8 +2,8 @@
 #include <NavalCommand/Catalog/Api/EquipmentTypeId.h>
 #include <NavalCommand/Catalog/Api/ResourceId.h>
 #include <NavalCommand/Catalog/Api/ResourceValue.h>
-#include <NavalCommand/Uncertainty/Api/Knowledge.h>
-#include <NavalCommand/Uncertainty/Api/ObservedCollection.h>
+#include <NavalCommand/Uncertainty/Api/Exact.h>
+#include <vector>
 
 namespace NavalCommand::Observations::Api
 {
@@ -12,11 +12,11 @@ namespace NavalCommand::Observations::Api
 		struct Resource
 		{
 			Catalog::Api::ResourceId Id;
-			Uncertainty::Api::Knowledge<Catalog::Api::ResourceValue> Amount;
+			Uncertainty::Api::Exact<Catalog::Api::ResourceValue> Amount;
 		};
 
-		Uncertainty::Api::Knowledge<Catalog::Api::EquipmentTypeId> Type;
-		Uncertainty::Api::Knowledge<bool> Active;
-		Uncertainty::Api::ObservedCollection<Resource> Resources;
+		Uncertainty::Api::Exact<Catalog::Api::EquipmentTypeId> Type;
+		Uncertainty::Api::Exact<bool> Active;
+		std::vector<Resource> Resources;
 	};
 }

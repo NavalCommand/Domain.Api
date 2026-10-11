@@ -2,8 +2,8 @@
 #include <NavalCommand/Observations/Api/ObservationId.h>
 #include <NavalCommand/Observations/Api/ObserverId.h>
 #include <NavalCommand/Orders/Api/Eligibility.h>
-#include <NavalCommand/Uncertainty/Api/ObservedCollection.h>
 #include <cstdint>
+#include <vector>
 
 namespace NavalCommand::Orders::Api
 {
@@ -12,6 +12,7 @@ namespace NavalCommand::Orders::Api
 		Observations::Api::ObserverId Observer;
 		Observations::Api::ObservationId Observation;
 		std::uint64_t BasedOnVersion{};
-		Uncertainty::Api::ObservedCollection<Eligibility> Orders;
+		// A missing order row is not executable; consumers/providers must treat it as unreported.
+		std::vector<Eligibility> Orders;
 	};
 }

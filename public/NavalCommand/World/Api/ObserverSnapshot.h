@@ -2,7 +2,6 @@
 #include <NavalCommand/Observations/Api/ObserverId.h>
 #include <NavalCommand/Observations/Api/UnitObservation.h>
 #include <NavalCommand/Physics/Api/Seconds.h>
-#include <NavalCommand/Uncertainty/Api/ObservedCollection.h>
 #include <NavalCommand/World/Api/ObserverUnitRelationship.h>
 #include <cstdint>
 #include <string>
@@ -19,6 +18,6 @@ namespace NavalCommand::World::Api
 		std::uint64_t Version{};
 		Physics::Api::Seconds CapturedAt;
 		std::vector<Observations::Api::UnitObservation> Units;
-		Uncertainty::Api::ObservedCollection<ObserverUnitRelationship> Memberships;
+		std::vector<ObserverUnitRelationship> Memberships;
 	};
 }

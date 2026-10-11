@@ -55,7 +55,7 @@ class ArchitectureTests(unittest.TestCase):
             "Orders": "Request.h",
             "World": "ObserverSnapshot.h",
             "Observations": "UnitObservation.h",
-            "Uncertainty": "Knowledge.h",
+            "Uncertainty": "Exact.h",
             "Units": "UnitInstance.h",
         }
         leaf = header_names[included]
