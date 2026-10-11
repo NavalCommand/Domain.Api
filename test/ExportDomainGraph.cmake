@@ -3,7 +3,7 @@
 # into a direct Orders -> Catalog edge. Raw expressions are intentionally rejected.
 function(NavalCommandExportDomainGraph)
     get_property(graphPath GLOBAL PROPERTY NAVALCOMMAND_DOMAIN_GRAPH_PATH)
-    set(domainTargetNames Physics.Api Uncertainty.Api Catalog.Api Units.Api Orders.Api World.Api)
+    set(domainTargetNames Physics.Api Uncertainty.Api Catalog.Api Units.Api Observations.Api Orders.Api World.Api)
     if(TARGET Environment.Api)
         list(APPEND domainTargetNames Environment.Api)
     endif()

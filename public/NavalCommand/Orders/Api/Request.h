@@ -1,7 +1,8 @@
 #pragma once
-#include <NavalCommand/Orders/Api/FacilityLaunch.h>
+#include <NavalCommand/Observations/Api/ObservationId.h>
+#include <NavalCommand/Observations/Api/ObserverId.h>
+#include <NavalCommand/Orders/Api/LaunchAircraft.h>
 #include <NavalCommand/Orders/Api/RouteCommand.h>
-#include <NavalCommand/Units/Api/UnitId.h>
 #include <cstdint>
 #include <string>
 #include <variant>
@@ -12,8 +13,9 @@ namespace NavalCommand::Orders::Api
 	{
 		std::string SessionId;
 		std::string RequestId;
-		Units::Api::UnitId Unit;
+		Observations::Api::ObserverId Observer;
+		Observations::Api::ObservationId Observation;
 		std::uint64_t BasedOnVersion{};
-		std::variant<RouteCommand, FacilityLaunch> Payload;
+		std::variant<RouteCommand, LaunchAircraft> Payload;
 	};
 }

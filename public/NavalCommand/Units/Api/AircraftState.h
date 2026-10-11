@@ -1,10 +1,10 @@
 #pragma once
-#include <NavalCommand/Uncertainty/Api/Knowledge.h>
+#include <optional>
 
 namespace NavalCommand::Units::Api
 {
 	struct AircraftState
 	{
-		Uncertainty::Api::Knowledge<bool> Airborne;
+		std::optional<bool> Airborne;
 	};
 }

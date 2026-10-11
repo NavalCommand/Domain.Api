@@ -10,10 +10,11 @@ ALLOWED = {
     "Physics": set(),
     "Uncertainty": set(),
     "Catalog": {"Physics"},
-    "Units": {"Catalog", "Physics", "Uncertainty"},
-    "Orders": {"Units", "Physics", "Uncertainty"},
+    "Units": {"Catalog", "Physics"},
+    "Observations": {"Catalog", "Physics", "Uncertainty"},
+    "Orders": {"Observations", "Physics", "Uncertainty"},
     "Environment": {"Physics", "Uncertainty"},
-    "World": {"Units", "Environment", "Physics", "Uncertainty"},
+    "World": {"Units", "Observations", "Environment", "Physics", "Uncertainty"},
 }
 INCLUDE = re.compile(r'^\s*#\s*include\b([^\n]*)', re.MULTILINE)
 LITERAL_INCLUDE = re.compile(r'\s*([<"])([^>"\n]+)[>"]\s*(?://.*|/\*.*\*/\s*)?$')

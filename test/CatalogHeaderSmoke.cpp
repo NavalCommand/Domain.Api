@@ -1,10 +1,14 @@
 #include <NavalCommand/Catalog/Api/Catalog.h>
+#include <NavalCommand/Catalog/Api/UnitTypeId.h>
 #include <cstdint>
+#include <optional>
 #include <stdexcept>
 #include <type_traits>
+#include <utility>
+#include <variant>
+#include <vector>
 
 namespace Catalog = NavalCommand::Catalog::Api;
-
 static void Require(bool condition)
 {
 	if (!condition)
@@ -65,7 +69,7 @@ int main()
 	Catalog::ResourceQuantity tankCapacity{{"fuel"}, 0.3};
 	Catalog::UnitType helicopter;
 	helicopter.Id = {"helicopter"};
-	helicopter.Platform = {Catalog::PlatformDescription::Kind::Aircraft, Catalog::PlatformDescription::AircraftKind::RotaryWing};
+	helicopter.Platform = Catalog::PlatformDescription{Catalog::PlatformDescription::Kind::RotaryWingAircraft};
 	helicopter.Loadouts = {
 		{{"strike"},
 		 {Fit("radar", {}, {}),
@@ -77,10 +81,13 @@ int main()
 		  Fit("external-tank", {tankCapacity}, {tankCapacity}),
 		  Fit("jammer", {Count("jam-channels", 2)}, {Count("jam-channels", 0)})}}};
 	catalog.UnitTypes.push_back(helicopter);
+	Catalog::UnitType launchedProjectileType;
+	launchedProjectileType.Id = {"launched-projectile"};
+	Require(!launchedProjectileType.Platform.has_value());
+	catalog.UnitTypes.push_back(launchedProjectileType);
 	Require(catalog.EquipmentTypes.size() == 6);
 	Require(catalog.UnitTypes[0].Loadouts.size() == 2);
-	Require(helicopter.Platform.Category == Catalog::PlatformDescription::Kind::Aircraft);
-	Require(helicopter.Platform.Aircraft == Catalog::PlatformDescription::AircraftKind::RotaryWing);
+	Require(helicopter.Platform->Category == Catalog::PlatformDescription::Kind::RotaryWingAircraft);
 	Require(helicopter.Loadouts[0].Equipment[0].TypeId == helicopter.Loadouts[1].Equipment[0].TypeId);
 
 	for (const auto& loadout : helicopter.Loadouts)

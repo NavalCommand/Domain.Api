@@ -3,7 +3,7 @@
 
 namespace NavalCommand::Units::Api
 {
-	// Observer/session-scoped observation handle. Does not imply a real platform or command authority.
+	// Authoritative simulated tactical entity identity; adapters own native-ID mappings.
 	struct UnitId
 	{
 		std::string Value;

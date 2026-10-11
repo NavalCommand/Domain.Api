@@ -7,7 +7,7 @@ add_test(NAME domain-architecture
 add_test(NAME domain-architecture-negative
     COMMAND "${Python3_EXECUTABLE}" -B "${CMAKE_CURRENT_SOURCE_DIR}/ArchitectureTests.py" --cmake "${CMAKE_COMMAND}")
 
-foreach(domain IN ITEMS Physics Uncertainty Catalog Units Orders World)
+foreach(domain IN ITEMS Physics Uncertainty Catalog Units Observations Orders World)
     string(TOLOWER "${domain}" lowerDomain)
     add_executable("${lowerDomain}-header-smoke" "${domain}HeaderSmoke.cpp")
     target_link_libraries("${lowerDomain}-header-smoke" PRIVATE "${domain}.Api")

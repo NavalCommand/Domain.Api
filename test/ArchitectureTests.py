@@ -51,8 +51,16 @@ class ArchitectureTests(unittest.TestCase):
 
     def append_include(self, owner, included):
         header = next((self.root / "public" / "NavalCommand" / owner / "Api").glob("*.h"))
+        header_names = {
+            "Orders": "Request.h",
+            "World": "ObserverSnapshot.h",
+            "Observations": "UnitObservation.h",
+            "Uncertainty": "Knowledge.h",
+            "Units": "UnitInstance.h",
+        }
+        leaf = header_names[included]
         with header.open("a", encoding="utf-8") as stream:
-            stream.write(f"\n#include <NavalCommand/{included}/Api/" + ("Request.h" if included == "Orders" else "View.h") + ">\n")
+            stream.write(f"\n#include <NavalCommand/{included}/Api/{leaf}>\n")
 
     def test_current_graph(self):
         check(self.root, self.configure())
@@ -69,9 +77,29 @@ class ArchitectureTests(unittest.TestCase):
         self.append_include("World", "Orders")
         self.assert_rejected(self.configure(), r"forbidden include edge World.Api -> Orders.Api")
 
+    def test_forbidden_units_observations_include(self):
+        self.append_include("Units", "Observations")
+        self.assert_rejected(self.configure(), r"forbidden include edge Units.Api -> Observations.Api")
+
+    def test_forbidden_units_uncertainty_include(self):
+        self.append_include("Units", "Uncertainty")
+        self.assert_rejected(self.configure(), r"forbidden include edge Units.Api -> Uncertainty.Api")
+
+    def test_forbidden_observations_units_include(self):
+        self.append_include("Observations", "Units")
+        self.assert_rejected(self.configure(), r"forbidden include edge Observations.Api -> Units.Api")
+
     def test_forbidden_units_orders_target(self):
         manifest = self.configure("target_link_libraries(Units.Api INTERFACE Orders.Api)")
         self.assert_rejected(manifest, r"forbidden target edge Units.Api -> Orders.Api")
+
+    def test_forbidden_orders_units_target(self):
+        manifest = self.configure("target_link_libraries(Orders.Api INTERFACE Units.Api)")
+        self.assert_rejected(manifest, r"forbidden target edge Orders.Api -> Units.Api")
+
+    def test_forbidden_units_uncertainty_target(self):
+        manifest = self.configure("target_link_libraries(Units.Api INTERFACE Uncertainty.Api)")
+        self.assert_rejected(manifest, r"forbidden target edge Units.Api -> Uncertainty.Api")
 
     def test_forbidden_units_world_target(self):
         manifest = self.configure("target_link_libraries(Units.Api INTERFACE World.Api)")

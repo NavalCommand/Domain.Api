@@ -1,56 +1,54 @@
-#include <NavalCommand/World/Api/View.h>
-#include <stdexcept>
+#include <NavalCommand/World/Api/RecordedSnapshots.h>
 #include <type_traits>
 
 namespace World = NavalCommand::World::Api;
 namespace Units = NavalCommand::Units::Api;
-namespace Physics = NavalCommand::Physics::Api;
+namespace Catalog = NavalCommand::Catalog::Api;
 namespace Uncertainty = NavalCommand::Uncertainty::Api;
+namespace Observations = NavalCommand::Observations::Api;
 
-static void Require(bool condition)
-{
-	if (!condition)
-	{
-		throw std::runtime_error("World relationship assertion failed");
-	}
-}
+static_assert(!std::is_same_v<Units::UnitId, Observations::ObservationId>);
+static_assert(std::is_same_v<decltype(World::SimulationSnapshot::Units), std::vector<Units::UnitInstance>>);
+static_assert(std::is_same_v<decltype(World::ObserverSnapshot::Units), std::vector<Observations::UnitObservation>>);
+static_assert(std::is_same_v<decltype(World::ObserverUnitRelationship::Observation), Observations::ObservationId>);
 
 int main()
 {
-	static_assert(std::is_same_v<decltype(Units::UnitInstance::Identity), Units::UnitId>);
-	static_assert(std::is_same_v<decltype(World::UnitMembership::Unit), Units::UnitId>);
-	World::View snapshot;
-	snapshot.SessionId = "session";
-	snapshot.ObserverId = "observer";
-	snapshot.Version = 7;
-	snapshot.CapturedAt = {45};
-	snapshot.Instances.resize(3);
-	auto& own = snapshot.Instances[0];
-	own.Identity = {"session-observation-1"};
-	own.Observation.MeasuredAt = Uncertainty::Knowledge<Physics::Seconds>::Known({40});
-	auto& contact = snapshot.Instances[1];
-	contact.Identity = {"session-observation-2"};
-	contact.Kinematics.Position = Uncertainty::Knowledge<Units::PositionObservation>::Estimated({{{1}, {2}, std::nullopt}, std::nullopt}, "faction-visible contact evidence");
-	auto& airfield = snapshot.Instances[2];
-	airfield.Identity = {"session-observation-3"};
-	airfield.AirOperations.emplace();
-	airfield.AirOperations->PendingOperations = Uncertainty::Knowledge<std::uint32_t>::Known(0);
-	Require(!contact.Observation.MeasuredAt.HasValue());
-	Require(snapshot.CapturedAt.Value - own.Observation.MeasuredAt.Value().Value == 5);
-	Require(airfield.Identity == snapshot.Instances[2].Identity && airfield.AirOperations.has_value());
-
-	using Memberships = Uncertainty::ObservedCollection<World::UnitMembership>;
-	Require(snapshot.Memberships.GetCoverage() == Memberships::Coverage::Unknown);
-	snapshot.Memberships = {
-		Memberships::Coverage::Partial,
-		{{own.Identity, Uncertainty::Knowledge<std::string>::Known("observer-visible-faction"), Uncertainty::Knowledge<std::string>::Known("session-taskforce-1")},
-		 {contact.Identity, {}, {}}}};
-	Require(snapshot.Memberships.Items()[0].Unit == own.Identity);
-	Require(snapshot.Memberships.Items()[0].TaskForce.Value() == "session-taskforce-1");
-	Require(!snapshot.Memberships.Items()[1].Faction.HasValue());
-	Require(!snapshot.Memberships.Items()[1].TaskForce.HasValue());
-	Require(snapshot.Memberships.GetCoverage() == Memberships::Coverage::Partial);
-	snapshot.Memberships = {Memberships::Coverage::Complete, {}};
-	Require(snapshot.Memberships.Items().empty());
-	return 0;
+	World::RecordedSnapshots recording;
+	recording.Truth.SessionId = "session";
+	recording.Truth.Units.push_back({Units::UnitId{"truth-1"}});
+	Units::UnitInstance carrier;
+	carrier.Identity = {"truth-carrier"};
+	carrier.Type = Catalog::UnitTypeId{"carrier"};
+	carrier.AirOperations.emplace();
+	carrier.AirOperations->PendingOperations = 0;
+	recording.Truth.Units.push_back(carrier);
+	recording.Truth.Units.push_back({Units::UnitId{"truth-2"}});
+	World::ObserverSnapshot observerA;
+	observerA.SessionId = "session";
+	observerA.Observer = {"blue"};
+	observerA.Units.push_back({Observations::ObservationId{"blue-contact-1"}});
+	Observations::UnitObservation observedCarrier;
+	observedCarrier.Identity = {"blue-carrier"};
+	observedCarrier.Type = Uncertainty::Knowledge<Catalog::UnitTypeId>::Known({"carrier"});
+	observedCarrier.AirOperations.emplace();
+	observerA.Units.push_back(observedCarrier);
+	observerA.Units.push_back({Observations::ObservationId{"blue-fused-contact"}});
+	World::ObserverSnapshot observerB;
+	observerB.SessionId = "session";
+	observerB.Observer = {"red"};
+	observerB.Units.push_back({Observations::ObservationId{"red-contact-7"}});
+	recording.Perspectives = {observerA, observerB};
+	recording.Associations.push_back({observerA.Observer, observerA.Units[0].Identity, recording.Truth.Units[0].Identity});
+	recording.Associations.push_back({observerB.Observer, observerB.Units[0].Identity, recording.Truth.Units[0].Identity});
+	recording.Associations.push_back({observerA.Observer, observerA.Units[2].Identity, recording.Truth.Units[0].Identity});
+	recording.Associations.push_back({observerA.Observer, observerA.Units[2].Identity, recording.Truth.Units[2].Identity});
+	const bool independentObserverHandles =
+		recording.Perspectives[0].Units[0].Identity.Value != recording.Perspectives[1].Units[0].Identity.Value;
+	const bool supportsManyToOneFusion = recording.Associations[2].Observation == recording.Associations[3].Observation &&
+		recording.Associations[2].Unit != recording.Associations[3].Unit;
+	const bool separatesAirOperationsTruthAndObservation = recording.Truth.Units[1].AirOperations->PendingOperations == 0 &&
+		!recording.Perspectives[0].Units[1].AirOperations->PendingOperations.HasValue();
+	return recording.Associations.size() == 4 && independentObserverHandles && supportsManyToOneFusion &&
+		separatesAirOperationsTruthAndObservation ? 0 : 1;
 }

@@ -13,16 +13,21 @@ NavalCommandConfigureTarget(Catalog.Api)
 
 add_library(Units.Api INTERFACE)
 target_include_directories(Units.Api INTERFACE "${PROJECT_SOURCE_DIR}/public")
-target_link_libraries(Units.Api INTERFACE Catalog.Api Physics.Api Uncertainty.Api)
+target_link_libraries(Units.Api INTERFACE Catalog.Api Physics.Api)
 NavalCommandConfigureTarget(Units.Api)
+
+add_library(Observations.Api INTERFACE)
+target_include_directories(Observations.Api INTERFACE "${PROJECT_SOURCE_DIR}/public")
+target_link_libraries(Observations.Api INTERFACE Catalog.Api Physics.Api Uncertainty.Api)
+NavalCommandConfigureTarget(Observations.Api)
 
 add_library(Orders.Api INTERFACE)
 target_include_directories(Orders.Api INTERFACE "${PROJECT_SOURCE_DIR}/public")
-target_link_libraries(Orders.Api INTERFACE Units.Api Physics.Api Uncertainty.Api)
+target_link_libraries(Orders.Api INTERFACE Observations.Api Physics.Api Uncertainty.Api)
 NavalCommandConfigureTarget(Orders.Api)
 
 # Environment.Api remains reserved until a provider exposes supported environment facts.
 add_library(World.Api INTERFACE)
 target_include_directories(World.Api INTERFACE "${PROJECT_SOURCE_DIR}/public")
-target_link_libraries(World.Api INTERFACE Units.Api Physics.Api Uncertainty.Api)
+target_link_libraries(World.Api INTERFACE Units.Api Observations.Api Physics.Api Uncertainty.Api)
 NavalCommandConfigureTarget(World.Api)
