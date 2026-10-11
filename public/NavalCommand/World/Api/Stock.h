@@ -6,6 +6,7 @@
 
 namespace NavalCommand::World::Api
 {
+	// TODO Name is not clear, Stock of what?
 	struct Stock
 	{
 		struct LaunchOption

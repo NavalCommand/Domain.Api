@@ -7,14 +7,15 @@
 
 namespace NavalCommand::World::Api
 {
+	// TODO Unclear name. What facility? Should be Airbase or something like that.
 	struct Facility
 	{
 		std::string entityId;
 		std::vector<Stock> stocks;
 		std::uint32_t pendingOperations{};
-		double sampledAtSeconds{};
+		double sampledAtSeconds{}; // TODO Sampling semantics leakage into Unit Component. Units already have ObservationMetadata.
 		std::optional<std::uint32_t> onboardCount;
 		std::optional<std::uint32_t> reservedCount;
 		std::optional<std::uint32_t> cooldownCount;
 	};
-} // namespace NavalCommand::World::Api
+}

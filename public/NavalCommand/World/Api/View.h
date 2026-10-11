@@ -16,6 +16,8 @@ namespace NavalCommand::World::Api
 		std::uint64_t version{};
 		double operationalSeconds{};
 		std::vector<UnitInstance> Instances;
+
+		// TODO Isn't Facility a component, attachable to a UnitInstance? If not, it should be.
 		std::vector<Facility> facilities;
 	};
 }

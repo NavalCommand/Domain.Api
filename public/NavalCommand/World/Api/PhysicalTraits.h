@@ -3,6 +3,7 @@
 
 namespace NavalCommand::World::Api
 {
+	// TODO Physical Traits of what?
 	struct PhysicalTraits
 	{
 		struct Arc

@@ -9,6 +9,7 @@ namespace NavalCommand::World::Api
 		{
 		};
 
+		// TODO Isn't Helicopter an Aircraft?
 		struct Helicopter
 		{
 		};
