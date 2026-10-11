@@ -9,15 +9,17 @@
 #include <NavalCommand/World/Api/Subject.h>
 #include <optional>
 
-namespace NavalCommand::World::Api {
-struct UnitInstance {
-	Subject Identity;
-	IdentityState Display;
-	KinematicsState Kinematics;
-	ObservationMetadata Observation;
-	ObservedCollection<EquipmentInstance> Equipment;
-	std::optional<NavigationState> Navigation;
-	std::optional<OrderEligibilityState> OrderEligibility;
-	std::optional<AircraftState> Aircraft;
-};
+namespace NavalCommand::World::Api
+{
+	struct UnitInstance
+	{
+		Subject Identity;
+		IdentityState Display;
+		KinematicsState Kinematics;
+		ObservationMetadata Observation;
+		ObservedCollection<EquipmentInstance> Equipment;
+		std::optional<NavigationState> Navigation;
+		std::optional<OrderEligibilityState> OrderEligibility;
+		std::optional<AircraftState> Aircraft;
+	};
 }

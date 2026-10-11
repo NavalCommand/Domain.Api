@@ -6,11 +6,13 @@
 #include <string>
 #include <vector>
 
-namespace NavalCommand::World::Api {
-struct EquipmentType {
-	std::string Id;
-	std::vector<EquipmentCapability> Capabilities;
-	std::vector<EquipmentOperation> Operations;
-	std::optional<PhysicalTraits> Physical;
-};
+namespace NavalCommand::World::Api
+{
+	struct EquipmentType
+	{
+		std::string Id;
+		std::vector<EquipmentCapability> Capabilities;
+		std::vector<EquipmentOperation> Operations;
+		std::optional<PhysicalTraits> Physical;
+	};
 }

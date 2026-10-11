@@ -3,9 +3,11 @@
 #include <NavalCommand/World/Api/Knowledge.h>
 #include <vector>
 
-namespace NavalCommand::World::Api {
-struct NavigationState {
-	Knowledge<bool> Inspected;
-	Knowledge<std::vector<Orders::Api::RoutePoint>> PlannedRoute;
-};
+namespace NavalCommand::World::Api
+{
+	struct NavigationState
+	{
+		Knowledge<bool> Inspected;
+		Knowledge<std::vector<Orders::Api::RoutePoint>> PlannedRoute;
+	};
 }

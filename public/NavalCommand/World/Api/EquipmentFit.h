@@ -5,10 +5,12 @@
 #include <string>
 #include <vector>
 
-namespace NavalCommand::World::Api {
-struct EquipmentFit {
-	std::string EquipmentTypeId;
-	std::vector<ResourceQuantity> NominalResources;
-	std::optional<PhysicalTraits> Physical;
-};
+namespace NavalCommand::World::Api
+{
+	struct EquipmentFit
+	{
+		std::string EquipmentTypeId;
+		std::vector<ResourceQuantity> NominalResources;
+		std::optional<PhysicalTraits> Physical;
+	};
 }

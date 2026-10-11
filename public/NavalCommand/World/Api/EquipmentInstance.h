@@ -6,27 +6,35 @@
 #include <string>
 #include <vector>
 
-namespace NavalCommand::World::Api {
-struct EquipmentInstance {
-	enum class Readiness {
-		Ready,
-		Busy,
-		Unavailable
+namespace NavalCommand::World::Api
+{
+	struct EquipmentInstance
+	{
+		enum class Readiness
+		{
+			Ready,
+			Busy,
+			Unavailable
+		};
+
+		enum class Damage
+		{
+			Intact,
+			Damaged,
+			Destroyed
+		};
+
+		struct Resource
+		{
+			ResourceQuantity::Kind Kind;
+			Knowledge<double> Amount;
+		};
+
+		Knowledge<std::string> TypeId;
+		Knowledge<bool> Active;
+		Knowledge<Readiness> OperationalReadiness;
+		Knowledge<Damage> DamageState;
+		std::vector<Resource> Resources;
+		std::optional<PhysicalTraits> Physical;
 	};
-	enum class Damage {
-		Intact,
-		Damaged,
-		Destroyed
-	};
-	struct Resource {
-		ResourceQuantity::Kind Kind;
-		Knowledge<double> Amount;
-	};
-	Knowledge<std::string> TypeId;
-	Knowledge<bool> Active;
-	Knowledge<Readiness> OperationalReadiness;
-	Knowledge<Damage> DamageState;
-	std::vector<Resource> Resources;
-	std::optional<PhysicalTraits> Physical;
-};
 }

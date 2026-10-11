@@ -6,13 +6,15 @@
 #include <optional>
 #include <string>
 
-namespace NavalCommand::Orders::Api {
-struct Request {
-	std::string sessionId;
-	std::string requestId;
-	OwnUnitId Subject;
-	std::uint64_t basedOnVersion{};
-	std::optional<RouteCommand> routeCommand;
-	std::optional<FacilityLaunch> facilityLaunch;
-};
+namespace NavalCommand::Orders::Api
+{
+	struct Request
+	{
+		std::string sessionId;
+		std::string requestId;
+		OwnUnitId Subject;
+		std::uint64_t basedOnVersion{};
+		std::optional<RouteCommand> routeCommand;
+		std::optional<FacilityLaunch> facilityLaunch;
+	};
 }

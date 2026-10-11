@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
 
-namespace NavalCommand::Orders::Api {
-struct OwnUnitId {
-	std::string Value;
-};
+namespace NavalCommand::Orders::Api
+{
+	struct OwnUnitId
+	{
+		std::string Value;
+	};
 }
