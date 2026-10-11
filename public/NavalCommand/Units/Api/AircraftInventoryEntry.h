@@ -1,6 +1,6 @@
 #pragma once
-#include <NavalCommand/Catalog/Api/LoadoutId.h>
-#include <NavalCommand/Catalog/Api/UnitTypeId.h>
+#include <../../Equipment/Api/LoadoutId.h>
+#include <UnitTypeId.h>
 #include <cstdint>
 #include <optional>
 #include <string>

@@ -14,6 +14,5 @@ namespace NavalCommand::Units::Api
 		std::optional<std::uint32_t> OnboardCount;
 		std::optional<std::uint32_t> ReservedCount;
 		std::optional<std::uint32_t> CooldownCount;
-		std::optional<Physics::Api::Seconds> SampledAt;
 	};
 }

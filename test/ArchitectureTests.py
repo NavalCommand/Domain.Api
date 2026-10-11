@@ -52,7 +52,7 @@ class ArchitectureTests(unittest.TestCase):
     def append_include(self, owner, included):
         header = next((self.root / "public" / "NavalCommand" / owner / "Api").glob("*.h"))
         header_names = {
-            "Orders": "Request.h",
+            "Orders": "RequestExecution.h",
             "World": "ObserverSnapshot.h",
             "Observations": "UnitObservation.h",
             "Uncertainty": "Exact.h",
@@ -138,14 +138,14 @@ class ArchitectureTests(unittest.TestCase):
     def test_relative_include_rejected(self):
         header = self.root / "public" / "NavalCommand" / "Units" / "Api" / "UnitId.h"
         with header.open("a", encoding="utf-8") as stream:
-            stream.write('\n#include "../../Orders/Api/Request.h"\n')
+            stream.write('\n#include "../../Orders/Api/RequestExecution.h"\n')
         self.assert_rejected(self.configure(), r"quoted/relative public include is forbidden")
 
     def test_macro_include_rejected(self):
         header = self.root / "public" / "NavalCommand" / "Units" / "Api" / "UnitId.h"
         with header.open("a", encoding="utf-8") as stream:
             stream.write(
-                '\n#define HIDDEN_ORDER_HEADER <NavalCommand/Orders/Api/Request.h>\n'
+                '\n#define HIDDEN_ORDER_HEADER <NavalCommand/Orders/Api/RequestExecution.h>\n'
                 '#include HIDDEN_ORDER_HEADER\n'
             )
         self.assert_rejected(self.configure(), r"macro/nonliteral public include is forbidden")

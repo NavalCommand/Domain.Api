@@ -25,9 +25,3 @@ add_library(Orders.Api INTERFACE)
 target_include_directories(Orders.Api INTERFACE "${PROJECT_SOURCE_DIR}/public")
 target_link_libraries(Orders.Api INTERFACE Observations.Api Physics.Api)
 NavalCommandConfigureTarget(Orders.Api)
-
-# Environment.Api remains reserved until a provider exposes supported environment facts.
-add_library(World.Api INTERFACE)
-target_include_directories(World.Api INTERFACE "${PROJECT_SOURCE_DIR}/public")
-target_link_libraries(World.Api INTERFACE Units.Api Observations.Api Physics.Api Uncertainty.Api)
-NavalCommandConfigureTarget(World.Api)

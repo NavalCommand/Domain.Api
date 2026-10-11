@@ -1,0 +1,17 @@
+#pragma once
+#include <NavalCommand/Orders/Api/LaunchAircraft.h>
+#include <NavalCommand/Orders/Api/Route.h>
+#include <cstdint>
+#include <string>
+#include <variant>
+
+namespace NavalCommand::Orders::Api
+{
+	struct ExecutionRequest
+	{
+		std::string SessionId;
+		std::string RequestId;
+		Units::Api::Id Executor;
+		std::variant<RouteCommand, LaunchAircraft> Payload;
+	};
+}

@@ -9,6 +9,7 @@ namespace NavalCommand::Observations::Api
 	{
 		std::optional<Physics::Api::Degrees> Latitude;
 		std::optional<Physics::Api::Degrees> Longitude;
+		std::optional<Physics::Api::Meters> Elevation;
 		std::optional<ObservedErrorEllipse> ErrorEllipse;
 	};
 }

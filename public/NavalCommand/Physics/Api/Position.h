@@ -5,11 +5,10 @@
 
 namespace NavalCommand::Physics::Api
 {
-	// Geodetic latitude/longitude in degrees; altitude above mean sea level in meters.
 	struct Position
 	{
 		Degrees Latitude;
 		Degrees Longitude;
-		std::optional<Meters> Altitude;
+		Meters Elevation;
 	};
 }

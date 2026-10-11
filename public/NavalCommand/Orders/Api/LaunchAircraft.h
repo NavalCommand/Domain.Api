@@ -1,12 +1,14 @@
 #pragma once
-#include <NavalCommand/Observations/Api/AircraftSelection.h>
 #include <cstdint>
+#include <NavalCommand/Equipment/Api/LoadoutId.h>
+#include <NavalCommand/Observations/Api/Unit.h>
 
 namespace NavalCommand::Orders::Api
 {
 	struct LaunchAircraft
 	{
-		Observations::Api::AircraftSelection Aircraft;
+		Units::Api::TypeId AircraftType;
+		Equipment::Api::LoadoutId Loadout;
 		std::uint32_t Count{};
 	};
 }
