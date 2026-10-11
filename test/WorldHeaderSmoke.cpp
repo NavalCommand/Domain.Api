@@ -1,145 +1,56 @@
-#include <NavalCommand/World/Api/Catalog.h>
 #include <NavalCommand/World/Api/View.h>
 #include <stdexcept>
 #include <type_traits>
 
-using namespace NavalCommand;
-using namespace World::Api;
-using Orders::Api::OwnUnitId;
+namespace World = NavalCommand::World::Api;
+namespace Units = NavalCommand::Units::Api;
+namespace Physics = NavalCommand::Physics::Api;
+namespace Uncertainty = NavalCommand::Uncertainty::Api;
 
-static void Require(bool condition) {
-	if (!condition) {
-		throw std::runtime_error("Domain composition assertion failed");
+static void Require(bool condition)
+{
+	if (!condition)
+	{
+		throw std::runtime_error("World relationship assertion failed");
 	}
 }
 
-int main() {
-	static_assert(std::is_aggregate_v<UnitInstance>);
-	static_assert(!std::is_assignable_v<Orders::Api::OwnUnitId &, TrackId>);
-	using Equipment = ObservedCollection<EquipmentInstance>;
-	Require(Equipment{}.GetCoverage() == Equipment::Coverage::Unknown);
-	Require(Equipment{Equipment::Coverage::Complete, {}}.Items().empty());
-	Require(Equipment{Equipment::Coverage::Partial, {EquipmentInstance{}}}.Items().size() == 1);
-	Require(Equipment{Equipment::Coverage::Partial, {}}.GetCoverage() == Equipment::Coverage::Partial);
-	bool invalidRejected = false;
-	try {
-		Equipment invalid{Equipment::Coverage::Unknown, {EquipmentInstance{}}};
-	} catch (const std::invalid_argument &) {
-		invalidRejected = true;
-	}
-	Require(invalidRejected);
-	Require(!Knowledge<double>{}.HasValue());
-	Require(Knowledge<double>::Known(0).Value() == 0);
-	bool unknownRejected = false;
-	try {
-		Knowledge<double>{}.Value();
-	} catch (const std::logic_error &) {
-		unknownRejected = true;
-	}
-	Require(unknownRejected);
+int main()
+{
+	static_assert(std::is_same_v<decltype(Units::UnitInstance::Identity), Units::UnitId>);
+	static_assert(std::is_same_v<decltype(World::UnitMembership::Unit), Units::UnitId>);
+	World::View snapshot;
+	snapshot.SessionId = "session";
+	snapshot.ObserverId = "observer";
+	snapshot.Version = 7;
+	snapshot.CapturedAt = {45};
+	snapshot.Instances.resize(3);
+	auto& own = snapshot.Instances[0];
+	own.Identity = {"session-observation-1"};
+	own.Observation.MeasuredAt = Uncertainty::Knowledge<Physics::Seconds>::Known({40});
+	auto& contact = snapshot.Instances[1];
+	contact.Identity = {"session-observation-2"};
+	contact.Kinematics.Position = Uncertainty::Knowledge<Units::PositionObservation>::Estimated({{{1}, {2}, std::nullopt}, std::nullopt}, "faction-visible contact evidence");
+	auto& airfield = snapshot.Instances[2];
+	airfield.Identity = {"session-observation-3"};
+	airfield.AirOperations.emplace();
+	airfield.AirOperations->PendingOperations = Uncertainty::Knowledge<std::uint32_t>::Known(0);
+	Require(!contact.Observation.MeasuredAt.HasValue());
+	Require(snapshot.CapturedAt.Value - own.Observation.MeasuredAt.Value().Value == 5);
+	Require(airfield.Identity == snapshot.Instances[2].Identity && airfield.AirOperations.has_value());
 
-	using Capability = EquipmentCapability;
-	using Operation = EquipmentOperation;
-	using Resource = ResourceQuantity;
-	Catalog catalog;
-	catalog.Revision = "synthetic-scenario-v1";
-	EquipmentType missile{"missile",
-						  {{Capability::Damage{}}},
-						  {{"launch",
-							0,
-							{Operation::TargetInput::Track, Operation::TargetInput::Location},
-							Operation::Action::Launch,
-							Operation::Duration::OneShot,
-							{{Resource::Kind::Ammunition, 1}},
-							{Operation::Mode::Guided}}}};
-	EquipmentType radar{"radar",
-						{{Capability::Sensing{Capability::SensingMode::Radar}}},
-						{{"scan", 0, {Operation::TargetInput::None}, Operation::Action::Activate, Operation::Duration::Continuous, {}, {Operation::Mode::Active}}}};
-	EquipmentType jammer{"jammer",
-						 {{Capability::Jamming{}}},
-						 {{"jam",
-						   0,
-						   {Operation::TargetInput::Track, Operation::TargetInput::Location},
-						   Operation::Action::Activate,
-						   Operation::Duration::Continuous,
-						   {{Resource::Kind::JamChannels, 1}},
-						   {Operation::Mode::Active}}}};
-	EquipmentType chaff{"chaff",
-						{{Capability::Deception{}}},
-						{{"deploy", 0, {Operation::TargetInput::None}, Operation::Action::Deploy, Operation::Duration::OneShot, {{Resource::Kind::DeploymentCharges, 1}}}}};
-	EquipmentType buoy{"sonobuoy",
-					   {{Capability::Sensing{Capability::SensingMode::Sonar}}},
-					   {{"deploy",
-						 0,
-						 {Operation::TargetInput::Area, Operation::TargetInput::Location},
-						 Operation::Action::Deploy,
-						 Operation::Duration::OneShot,
-						 {{Resource::Kind::DeploymentCharges, 1}}},
-						{"listen", 0, {Operation::TargetInput::None}, Operation::Action::Activate, Operation::Duration::Continuous, {}, {Operation::Mode::Passive}}}};
-	EquipmentType tank{"tank", {{Capability::Storage{}}}, {{"jettison", 0, {Operation::TargetInput::None}, Operation::Action::Jettison, Operation::Duration::OneShot, {}}}};
-	catalog.EquipmentTypes = {missile, radar, jammer, chaff, buoy, tank};
-	UnitType helicopter{
-		"helicopter",
-		{PlatformDescription::Helicopter{}},
-		{{"strike", {{"radar", {}}, {"missile", {{Resource::Kind::Ammunition, 4}}}, {"chaff", {{Resource::Kind::DeploymentCharges, 20}}}}},
-		 {"patrol",
-		  {{"radar", {}}, {"sonobuoy", {{Resource::Kind::DeploymentCharges, 8}}}, {"tank", {{Resource::Kind::FuelLiters, 300}}}, {"jammer", {{Resource::Kind::JamChannels, 2}}}}}}};
-	catalog.UnitTypes.push_back(helicopter);
-	Require(catalog.EquipmentTypes.size() == 6);
-	Require(catalog.UnitTypes[0].Loadouts.size() == 2);
-	Require(std::holds_alternative<PlatformDescription::Helicopter>(helicopter.Platform.Description));
-	for (const auto &unitType : catalog.UnitTypes) {
-		for (const auto &loadout : unitType.Loadouts) {
-			for (const auto &fit : loadout.Equipment) {
-				bool resolved = false;
-				for (const auto &type : catalog.EquipmentTypes) {
-					resolved = resolved || type.Id == fit.EquipmentTypeId;
-				}
-				Require(resolved);
-			}
-		}
-	}
-	Require(helicopter.Loadouts[0].Equipment[0].EquipmentTypeId == helicopter.Loadouts[1].Equipment[0].EquipmentTypeId);
-	for (const auto &type : catalog.EquipmentTypes) {
-		for (const auto &operation : type.Operations) {
-			Require(operation.CapabilityIndex < type.Capabilities.size());
-		}
-	}
-	Require(missile.Operations[0].SupportedModes[0] == Operation::Mode::Guided);
-	Require(radar.Operations[0].Costs.empty());
-	Require(jammer.Operations[0].Costs[0].Resource == Resource::Kind::JamChannels);
-	Require(chaff.Operations[0].AcceptedTargets[0] == Operation::TargetInput::None);
-	Require(buoy.Operations.size() == 2 && buoy.Operations[1].OperationDuration == Operation::Duration::Continuous);
-	Require(std::holds_alternative<Capability::Storage>(tank.Capabilities[0].Behavior));
-
-	UnitInstance own;
-	own.Identity = OwnUnitId{"same-text"};
-	own.Display.Name = Knowledge<std::string>::Known("Aircraft");
-	own.Kinematics.Position = Knowledge<PositionObservation>::Known({{0, 0, 0}});
-	own.Kinematics.SpeedMetersPerSecond = Knowledge<double>::Known(0);
-	own.Navigation = NavigationState{Knowledge<bool>::Known(true), Knowledge<std::vector<Orders::Api::RoutePoint>>::Known({{1, 2, "destination"}})};
-	own.OrderEligibility = OrderEligibilityState{{ObservedCollection<Orders::Api::Eligibility>::Coverage::Complete, {{"replace_route", Orders::Api::Availability::Executable}}}};
-	own.Aircraft = AircraftState{Knowledge<bool>::Known(false)};
-	own.Observation.SampledAtSeconds = Knowledge<double>::Known(42);
-	EquipmentInstance currentMissile;
-	currentMissile.TypeId = Knowledge<std::string>::Known("missile");
-	currentMissile.Resources.push_back({Resource::Kind::Ammunition, Knowledge<double>::Known(0)});
-	own.Equipment = {Equipment::Coverage::Complete, {currentMissile}};
-	UnitInstance contact;
-	contact.Identity = TrackId{"same-text"};
-	contact.Display.TypeId = Knowledge<std::string>::Known("helicopter");
-	contact.Kinematics.Position = Knowledge<PositionObservation>::Estimated({{1, 2, {}}}, "observer");
-	contact.Observation.Provenance = Knowledge<std::string>::Known("observer");
-	View view;
-	view.Instances = {own, contact};
-	Require(std::holds_alternative<OwnUnitId>(view.Instances[0].Identity));
-	Require(std::holds_alternative<TrackId>(view.Instances[1].Identity));
-	Require(!view.Instances[1].OrderEligibility);
-	Require(view.Instances[1].Equipment.GetCoverage() == Equipment::Coverage::Unknown);
-	Require(!view.Instances[0].Aircraft->Airborne.Value());
-	Require(!view.Instances[1].Aircraft);
-	Require(currentMissile.Resources[0].Amount.IsKnown());
-	Require(EquipmentInstance{}.Resources.empty()); // Resource does not apply; not an unknown ammunition count.
-	Require(!EquipmentInstance::Resource{Resource::Kind::Ammunition, {}}.Amount.HasValue());
+	using Memberships = Uncertainty::ObservedCollection<World::UnitMembership>;
+	Require(snapshot.Memberships.GetCoverage() == Memberships::Coverage::Unknown);
+	snapshot.Memberships = {
+		Memberships::Coverage::Partial,
+		{{own.Identity, Uncertainty::Knowledge<std::string>::Known("observer-visible-faction"), Uncertainty::Knowledge<std::string>::Known("session-taskforce-1")},
+		 {contact.Identity, {}, {}}}};
+	Require(snapshot.Memberships.Items()[0].Unit == own.Identity);
+	Require(snapshot.Memberships.Items()[0].TaskForce.Value() == "session-taskforce-1");
+	Require(!snapshot.Memberships.Items()[1].Faction.HasValue());
+	Require(!snapshot.Memberships.Items()[1].TaskForce.HasValue());
+	Require(snapshot.Memberships.GetCoverage() == Memberships::Coverage::Partial);
+	snapshot.Memberships = {Memberships::Coverage::Complete, {}};
+	Require(snapshot.Memberships.Items().empty());
 	return 0;
 }

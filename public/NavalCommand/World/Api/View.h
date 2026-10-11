@@ -1,6 +1,8 @@
 #pragma once
-#include <NavalCommand/World/Api/Facility.h>
-#include <NavalCommand/World/Api/UnitInstance.h>
+#include <NavalCommand/Physics/Api/Seconds.h>
+#include <NavalCommand/Uncertainty/Api/ObservedCollection.h>
+#include <NavalCommand/Units/Api/UnitInstance.h>
+#include <NavalCommand/World/Api/UnitMembership.h>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -9,15 +11,14 @@ namespace NavalCommand::World::Api
 {
 	struct View
 	{
-		std::string sessionId;
-		std::string observerId;
-		bool ready{};
-		bool truncated{};
-		std::uint64_t version{};
-		double operationalSeconds{};
-		std::vector<UnitInstance> Instances;
-
-		// TODO Isn't Facility a component, attachable to a UnitInstance? If not, it should be.
-		std::vector<Facility> facilities;
+		std::string SessionId;
+		std::string ObserverId;
+		bool Ready{};
+		bool Truncated{};
+		std::uint64_t Version{};
+		// Snapshot capture in session operational seconds, not a sensor measurement timestamp.
+		Physics::Api::Seconds CapturedAt;
+		std::vector<Units::Api::UnitInstance> Instances;
+		Uncertainty::Api::ObservedCollection<UnitMembership> Memberships;
 	};
 }

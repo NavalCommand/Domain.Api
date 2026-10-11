@@ -1,14 +1,12 @@
 #pragma once
+#include <NavalCommand/Units/Api/AircraftSelection.h>
 #include <cstdint>
-#include <string>
 
 namespace NavalCommand::Orders::Api
 {
 	struct FacilityLaunch
 	{
-		std::string classKey;
-		std::string squadron;
-		std::string loadout;
-		std::uint32_t count{};
+		Units::Api::AircraftSelection Aircraft;
+		std::uint32_t Count{};
 	};
-} // namespace NavalCommand::Orders::Api
+}

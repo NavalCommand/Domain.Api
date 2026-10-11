@@ -15,4 +15,4 @@ namespace NavalCommand::Orders::Api
 		AircraftSpawned,
 		Airborne
 	};
-} // namespace NavalCommand::Orders::Api
+}

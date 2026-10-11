@@ -1,20 +1,19 @@
 #pragma once
 #include <NavalCommand/Orders/Api/FacilityLaunch.h>
-#include <NavalCommand/Orders/Api/OwnUnitId.h>
 #include <NavalCommand/Orders/Api/RouteCommand.h>
+#include <NavalCommand/Units/Api/UnitId.h>
 #include <cstdint>
-#include <optional>
 #include <string>
+#include <variant>
 
 namespace NavalCommand::Orders::Api
 {
 	struct Request
 	{
-		std::string sessionId;
-		std::string requestId;
-		OwnUnitId Subject;
-		std::uint64_t basedOnVersion{};
-		std::optional<RouteCommand> routeCommand;
-		std::optional<FacilityLaunch> facilityLaunch;
+		std::string SessionId;
+		std::string RequestId;
+		Units::Api::UnitId Unit;
+		std::uint64_t BasedOnVersion{};
+		std::variant<RouteCommand, FacilityLaunch> Payload;
 	};
 }

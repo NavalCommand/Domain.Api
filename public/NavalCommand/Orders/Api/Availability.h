@@ -9,4 +9,4 @@ namespace NavalCommand::Orders::Api
 		Blocked,
 		Unsupported
 	};
-} // namespace NavalCommand::Orders::Api
+}

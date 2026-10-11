@@ -1,16 +1,18 @@
 #pragma once
 #include <NavalCommand/Orders/Api/Availability.h>
+#include <NavalCommand/Orders/Api/FacilityLaunch.h>
+#include <NavalCommand/Orders/Api/OrderKind.h>
+#include <optional>
 #include <string>
 
 namespace NavalCommand::Orders::Api
 {
 	struct Eligibility
 	{
-		// TODO Public fields must be CamelCase, e.g. Kind, not kind.
-		// TODO What is Kind? Its type is string, which tells nothing about what this field stores.
-		std::string kind;
-		Availability availability{};
-		std::string reason;
-		std::string arguments;
+		OrderKind Kind{};
+		Orders::Api::Availability Availability{};
+		std::string Reason;
+		// A launch selector is discovery context, not inventory and not dispatch authorization.
+		std::optional<FacilityLaunch> LaunchOption;
 	};
-} // namespace NavalCommand::Orders::Api
+}
