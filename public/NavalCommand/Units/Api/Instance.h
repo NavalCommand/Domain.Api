@@ -9,6 +9,7 @@
 #include <vector>
 #include <NavalCommand/Equipment/Api/Instance.h>
 #include <NavalCommand/Units/Api/Activity.h>
+#include <NavalCommand/Factions/Api/Id.h>
 
 namespace NavalCommand::Units::Api
 {
@@ -17,6 +18,7 @@ namespace NavalCommand::Units::Api
 		Id Identity;
 		std::string Name;
 		TypeId Type;
+		Factions::Api::Id Faction;
 		Kinematics Kinematics;
 		std::vector<Equipment::Api::Instance> Equipment;
 		std::optional<Navigation> Navigation;
