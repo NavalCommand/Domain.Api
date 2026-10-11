@@ -16,8 +16,8 @@ namespace NavalCommand::Orders::Api
 	public:
 		virtual ~IProvider() = default;
 
-		virtual std::expected<std::optional<Failure>, Error> CanIssueOrder(const ExecutionRequest& request) const = 0;
-		virtual std::expected<Id, Error> IssueOrder(const ExecutionRequest& request) = 0;
+		virtual std::optional<Failure> CanIssueOrder(const ExecutionRequest& request) const = 0;
+		virtual Id IssueOrder(const ExecutionRequest& request) = 0;
 		virtual std::expected<ExecutionState, Error> GetOrderState(const Id& id);
 	};
 
