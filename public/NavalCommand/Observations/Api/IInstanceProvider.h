@@ -14,7 +14,7 @@ namespace NavalCommand::Observations::Api
 		virtual ~IInstanceProvider() = default;
 
 		virtual Error::Api::Result<std::vector<Id>> GetObservationIds() const = 0;
-		virtual Error::Api::Result<Instance> GetUnitInstance(const Id& id) const = 0;
+		virtual Error::Api::Result<Instance> GetObservationInstance(const Id& id) const = 0;
 	};
 
 }
