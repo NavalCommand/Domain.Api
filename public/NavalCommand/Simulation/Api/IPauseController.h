@@ -10,6 +10,8 @@ namespace NavalCommand::Simulation::Api
 	public:
 		virtual ~IPauseController() = default;
 
+		virtual NavalCommand::Error::Api::Result<bool> CanPause() const = 0;
+		virtual NavalCommand::Error::Api::Result<bool> CanUnpause() const = 0;
 		virtual NavalCommand::Error::Api::DomainResult<void, Error> SetPause(bool paused) = 0;
 	};
 

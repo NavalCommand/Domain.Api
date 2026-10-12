@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <NavalCommand/Factions/Api/Id.h>
+#include <NavalCommand/Units/Api/Classification.h>
 
 namespace NavalCommand::Observations::Api
 {
@@ -20,6 +21,7 @@ namespace NavalCommand::Observations::Api
 		Factions::Api::Id ObserverFaction;
 		Uncertainty::Api::Exact<Factions::Api::Id> ObservationFaction;
 		Uncertainty::Api::Exact<Units::Api::TypeId> Type;
+		Uncertainty::Api::Exact<Units::Api::Classification> Kind; // Classification may be known before exact type is certain
 		Kinematics Kinematics;
 		std::optional<Aircraft> Aircraft;
 

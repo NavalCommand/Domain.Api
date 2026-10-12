@@ -5,6 +5,7 @@ namespace NavalCommand::Simulation::Api
 	enum class Error
 	{
 		InvalidTimeCompression,
-		Blocked
+		Blocked,
+		AccessDenied
 	};
 }
