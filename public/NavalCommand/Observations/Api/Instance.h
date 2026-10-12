@@ -5,6 +5,7 @@
 #include <NavalCommand/Observations/Api/Kinematics.h>
 #include <NavalCommand/Physics/Api/Seconds.h>
 #include <NavalCommand/Uncertainty/Api/Exact.h>
+#include <NavalCommand/Uncertainty/Api/Resolution.h>
 #include <NavalCommand/Units/Api/TypeId.h>
 #include <optional>
 #include <string>
@@ -20,8 +21,7 @@ namespace NavalCommand::Observations::Api
 		std::string ObservationName; // Observer-facing name. Can be a track name or real unit name
 		Factions::Api::Id ObserverFaction;
 		Uncertainty::Api::Exact<Factions::Api::Id> ObservedFaction;
-		Uncertainty::Api::Exact<Units::Api::TypeId> Type;
-		Uncertainty::Api::Exact<Units::Api::Classification> Kind; // Classification may be known before exact type is certain
+		Uncertainty::Api::Resolution<Units::Api::TypeId, Units::Api::Classification> Type;
 		Kinematics Kinematics;
 		std::optional<Aircraft> Aircraft;
 
