@@ -33,6 +33,37 @@ The domain direction is acyclic. In particular, `Observations.Api` may use autho
 
 `Orders.Api` remains separate from `Operations.Api`: an order records requested behavior, while operations report current behavior. `Orders::Api::ExecutionRequest::Executor` remains a `Units::Api::Id` because it identifies the friendly unit executing the request. The order model does not use the operations projection.
 
-## Build and checks
+## Testing
 
-CMake exports each populated domain as a C++23 `INTERFACE` target. CTest runs architecture checks for public-header ownership, direct header and target dependencies, forbidden edges, and cycles; semantic smoke consumers for every domain; and a standalone compile-and-link consumer for every public header. The architecture tests also exercise forbidden dependency and cycle fixtures.
+GoogleTest and GoogleMock are test-only dependencies managed in vcpkg manifest mode. The pinned registry baseline and `gtest` dependency are declared in [`vcpkg.json`](vcpkg.json); no GoogleTest source is fetched or vendored by this repository.
+
+Install vcpkg, bootstrap it, and set `VCPKG_ROOT` to its checkout before configuring. For example, in PowerShell:
+
+```powershell
+$env:VCPKG_ROOT = "C:\path\to\vcpkg"
+& "$env:VCPKG_ROOT\bootstrap-vcpkg.bat"
+```
+
+On Linux, use the vcpkg checkout path for `VCPKG_ROOT` and run `"$VCPKG_ROOT/bootstrap-vcpkg.sh"`. The Windows presets select `x64-windows-static`, which uses the static MSVC runtime requested by the presets. Linux presets use `x64-linux` and Clang.
+
+Configure, build, and run CTest with the matching presets:
+
+```powershell
+cmake --preset windows-msvc-debug
+cmake --build --preset windows-msvc-debug
+ctest --preset windows-msvc-debug
+```
+
+```sh
+cmake --preset linux-clang-debug
+cmake --build --preset linux-clang-debug
+ctest --preset linux-clang-debug
+```
+
+Use the corresponding `*-release` preset names for Release builds. CTest discovers each GoogleTest case and also runs architecture validation plus the generated independent public-header compilation check.
+
+Manually maintained tests mirror the public namespace directories: for example, `public/NavalCommand/Units/Api/Instance.h` is tested in `test/NavalCommand/Units/Api/InstanceTest.cpp`. Name each file `<TypeName>Test.cpp`, keep assertions with the contract they cover, and use ordinary `TEST` or `TEST_F` cases. To add a test for a public type, add a source under its matching `test/NavalCommand/<Domain>/Api/` directory and link through the existing `domain-tests` target. CMake separately generates one build-directory translation unit per public header; each includes only that header and links through its owning domain target.
+
+Mocks mirror the same domain structure under `mock/` and use `<InterfaceName>Mock.h`, for example `mock/NavalCommand/Units/Api/IInstanceProviderMock.h`. Put the mock in the interface's namespace, include the public interface, inherit it, and declare every pure virtual method with `MOCK_METHOD` using the exact signature. Add an `EXPECT_CALL` compilation/use case in the matching `test/NavalCommand/<Domain>/Api/<InterfaceName>MockTest.cpp`. The `mock/` include directory is exposed only to the test executable; it is not part of any public `.Api` target.
+
+CTest also validates public-header ownership and direct domain dependencies, rejects forbidden dependency edges and cycles, and runs negative architecture fixtures. The domain dependency direction remains acyclic, including `Operations.Api → Observations.Api → Units.Api`; `Units.Api` does not depend on observations or operations.

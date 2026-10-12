@@ -2,12 +2,19 @@
   "version": 6,
   "configurePresets": [
     {
+      "name": "vcpkg",
+      "hidden": true,
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+    },
+    {
       "name": "windows-msvc-debug",
+      "inherits": "vcpkg",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/o/${presetName}",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_CXX_COMPILER": "cl.exe",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
         "BUILD_SHARED_LIBS": "OFF",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>"
@@ -24,11 +31,13 @@
     },
     {
       "name": "windows-msvc-release",
+      "inherits": "vcpkg",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/o/${presetName}",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_CXX_COMPILER": "cl.exe",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
         "BUILD_SHARED_LIBS": "OFF",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>"
@@ -41,38 +50,6 @@
       "architecture": {
         "value": "x64",
         "strategy": "external"
-      }
-    },
-    {
-      "name": "linux-clang-debug",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/o/${presetName}",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_CXX_COMPILER": "clang++",
-        "BUILD_SHARED_LIBS": "OFF",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
-      },
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Linux"
-      }
-    },
-    {
-      "name": "linux-clang-release",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/o/${presetName}",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_CXX_COMPILER": "clang++",
-        "BUILD_SHARED_LIBS": "OFF",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
-      },
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Linux"
       }
     }
   ]
