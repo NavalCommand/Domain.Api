@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <NavalCommand/Resources/Api/Id.h>
 #include <NavalCommand/Resources/Api/Value.h>
+#include <optional>
 
 namespace NavalCommand::Equipment::Api
 {
@@ -27,11 +28,17 @@ namespace NavalCommand::Equipment::Api
 			Reserve
 		};
 
+		struct ResourceRequirement
+		{
+			ResourceUse Use;
+			Resources::Api::Id ResourceId;
+			Resources::Api::Value Amount;
+		};
+
 		TargetInput AcceptedTargets;
 		Action Invocation{};
 
-		ResourceUse CostResourceUse;
-		Resources::Api::Id CostResource;
-		Resources::Api::Value CostAmount;
+		// Absence means the operation neither consumes nor reserves a resource.
+		std::optional<ResourceRequirement> Resource;
 	};
 }
