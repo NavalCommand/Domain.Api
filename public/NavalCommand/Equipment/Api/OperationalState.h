@@ -2,10 +2,10 @@
 
 namespace NavalCommand::Equipment::Api
 {
-	enum class Readiness
+	enum class OperationalState
 	{
 		Ready,
-		Busy,
+		Active,
 		Unavailable
 	};
 }
