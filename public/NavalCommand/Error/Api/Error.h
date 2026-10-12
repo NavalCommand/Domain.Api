@@ -4,7 +4,7 @@
 #include <system_error>
 #include <variant>
 
-#include "NavalCommand/Error/Api/ErrorCondition.h"
+#include <NavalCommand/Error/Api/ErrorCondition.h>
 
 namespace NavalCommand::Error::Api
 {

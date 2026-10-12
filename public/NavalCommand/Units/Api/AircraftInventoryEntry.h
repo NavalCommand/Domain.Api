@@ -1,6 +1,6 @@
 #pragma once
-#include <../../Equipment/Api/LoadoutId.h>
-#include <UnitTypeId.h>
+#include <NavalCommand/Equipment/Api/LoadoutId.h>
+#include <NavalCommand/Units/Api/TypeId.h>
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -10,9 +10,9 @@ namespace NavalCommand::Units::Api
 {
 	struct AircraftInventoryEntry
 	{
-		Catalog::Api::UnitTypeId Type;
+		TypeId Type;
 		std::string Squadron;
 		std::optional<std::uint32_t> UnreservedCount;
-		std::optional<std::vector<Catalog::Api::LoadoutId>> Loadouts;
+		std::optional<std::vector<Equipment::Api::LoadoutId>> Loadouts;
 	};
 }

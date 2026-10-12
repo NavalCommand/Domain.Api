@@ -7,15 +7,31 @@ add_test(NAME domain-architecture
 add_test(NAME domain-architecture-negative
     COMMAND "${Python3_EXECUTABLE}" -B "${CMAKE_CURRENT_SOURCE_DIR}/ArchitectureTests.py" --cmake "${CMAKE_COMMAND}")
 
-foreach(domain IN ITEMS Physics Uncertainty Catalog Units Observations Orders World)
+set(domainSmokeTests
+    Physics:PhysicsHeaderSmoke.cpp
+    Uncertainty:UncertaintyHeaderSmoke.cpp
+    Error:ErrorHeaderSmoke.cpp
+    Resources:ResourcesHeaderSmoke.cpp
+    Equipment:EquipmentHeaderSmoke.cpp
+    Factions:FactionsHeaderSmoke.cpp
+    Units:UnitsHeaderSmoke.cpp
+    Observations:ObservationsHeaderSmoke.cpp
+    Orders:OrdersHeaderSmoke.cpp
+    Environment:EnvironmentHeaderSmoke.cpp
+    Simulation:SimulationHeaderSmoke.cpp)
+
+foreach(smoke IN LISTS domainSmokeTests)
+    string(REPLACE ":" ";" smokeFields "${smoke}")
+    list(GET smokeFields 0 domain)
+    list(GET smokeFields 1 source)
     string(TOLOWER "${domain}" lowerDomain)
-    add_executable("${lowerDomain}-header-smoke" "${domain}HeaderSmoke.cpp")
+    add_executable("${lowerDomain}-header-smoke" "${source}")
     target_link_libraries("${lowerDomain}-header-smoke" PRIVATE "${domain}.Api")
-    NavalCommandConfigureTarget("${lowerDomain}-header-smoke")
+    NavalCommandConfigureDomainTarget("${lowerDomain}-header-smoke")
     add_test(NAME "${lowerDomain}-headers" COMMAND "${lowerDomain}-header-smoke")
 endforeach()
 
-# Each exported header is consumed directly and linked through its owner, never a catch-all World target.
+# Each exported header is consumed directly and linked through its owning domain target.
 file(GLOB_RECURSE domainHeaders CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/public/*.h")
 foreach(header IN LISTS domainHeaders)
     file(RELATIVE_PATH relativeHeader "${PROJECT_SOURCE_DIR}/public" "${header}")
@@ -31,6 +47,6 @@ foreach(header IN LISTS domainHeaders)
     file(WRITE "${source}" "#include <${relativeHeader}>\nint main() { return 0; }\n")
     add_executable("header-${headerTarget}" "${source}")
     target_link_libraries("header-${headerTarget}" PRIVATE "${ownerTarget}")
-    NavalCommandConfigureTarget("header-${headerTarget}")
+    NavalCommandConfigureDomainTarget("header-${headerTarget}")
     add_test(NAME "standalone-${headerTarget}" COMMAND "header-${headerTarget}")
 endforeach()

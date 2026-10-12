@@ -1,9 +1,7 @@
 #pragma once
 
-#include <expected>
-#include <vector>
+#include <optional>
 #include <NavalCommand/Error/Api/Result.h>
-#include <NavalCommand/Orders/Api/Error.h>
 #include <NavalCommand/Orders/Api/Error.h>
 #include <NavalCommand/Orders/Api/ExecutionRequest.h>
 #include <NavalCommand/Orders/Api/ExecutionState.h>
@@ -19,7 +17,7 @@ namespace NavalCommand::Orders::Api
 
 		virtual NavalCommand::Error::Api::Result<std::optional<Error>> CanIssueOrder(const ExecutionRequest& request) const = 0;
 		virtual NavalCommand::Error::Api::DomainResult<Id, Error> IssueOrder(const ExecutionRequest& request) = 0;
-		virtual NavalCommand::Error::Api::Result<ExecutionState> GetOrderState(const Id& id);
+		virtual NavalCommand::Error::Api::Result<ExecutionState> GetOrderState(const Id& id) = 0;
 	};
 
 }

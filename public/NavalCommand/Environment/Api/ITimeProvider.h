@@ -9,7 +9,7 @@ namespace NavalCommand::Environment::Api
 	public:
 		virtual ~ITimeProvider() = default;
 
-		virtual Error::Api::Result<Physics::Api::Seconds> GetCurrentTime() = 0;
+		virtual NavalCommand::Error::Api::Result<Physics::Api::Seconds> GetCurrentTime() = 0;
 	};
 
 }

@@ -2,7 +2,7 @@
 
 #include <system_error>
 
-#include "NavalCommand/Error/Api/Error.h"
+#include <NavalCommand/Error/Api/Error.h>
 
 namespace NavalCommand::Error::Api
 {

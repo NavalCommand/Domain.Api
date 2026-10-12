@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-#include "NavalCommand/Error/Api/ErrorCondition.h"
+#include <NavalCommand/Error/Api/ErrorCondition.h>
 
 namespace NavalCommand::Error::Api
 {

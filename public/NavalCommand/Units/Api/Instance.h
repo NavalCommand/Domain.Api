@@ -10,6 +10,7 @@
 #include <NavalCommand/Equipment/Api/Instance.h>
 #include <NavalCommand/Units/Api/Activity.h>
 #include <NavalCommand/Factions/Api/Id.h>
+#include <string>
 
 namespace NavalCommand::Units::Api
 {

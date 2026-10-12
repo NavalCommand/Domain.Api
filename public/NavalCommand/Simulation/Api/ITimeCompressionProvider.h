@@ -10,7 +10,7 @@ namespace NavalCommand::Simulation::Api
 	public:
 		virtual ~ITimeCompressionProvider() = default;
 
-		virtual Error::Api::Result<TimeCompressionFactor> GetTimeCompression() = 0;
+		virtual NavalCommand::Error::Api::Result<TimeCompressionFactor> GetTimeCompression() = 0;
 	};
 
 }

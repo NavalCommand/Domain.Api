@@ -1,4 +1,4 @@
-"""Check direct exported-header and evaluated CMake edges against the domain ownership contract."""
+"""Check exported header ownership and evaluated CMake dependencies."""
 
 import argparse
 from pathlib import Path
@@ -7,18 +7,21 @@ import sys
 
 
 ALLOWED = {
+    "Environment": {"Error", "Physics"},
+    "Equipment": {"Error", "Physics", "Resources"},
+    "Error": set(),
+    "Factions": {"Error"},
+    "Observations": {"Equipment", "Error", "Factions", "Physics", "Units", "Uncertainty"},
+    "Orders": {"Equipment", "Error", "Physics", "Units"},
     "Physics": set(),
+    "Resources": {"Error"},
+    "Simulation": {"Error"},
     "Uncertainty": set(),
-    "Catalog": {"Physics"},
-    "Units": {"Catalog", "Physics"},
-    "Observations": {"Catalog", "Physics", "Uncertainty"},
-    "Orders": {"Observations", "Physics", "Uncertainty"},
-    "Environment": {"Physics", "Uncertainty"},
-    "World": {"Units", "Observations", "Environment", "Physics", "Uncertainty"},
+    "Units": {"Equipment", "Error", "Factions", "Physics", "Uncertainty"},
 }
-INCLUDE = re.compile(r'^\s*#\s*include\b([^\n]*)', re.MULTILINE)
+INCLUDE = re.compile(r"^\s*#\s*include\b([^\n]*)", re.MULTILINE)
 LITERAL_INCLUDE = re.compile(r'\s*([<"])([^>"\n]+)[>"]\s*(?://.*|/\*.*\*/\s*)?$')
-NAMESPACE = re.compile(r'\bnamespace\s+NavalCommand::([A-Za-z]+)::Api\b')
+NAMESPACE = re.compile(r"\bnamespace\s+NavalCommand::([A-Za-z]+)::Api\b")
 
 
 class ArchitectureError(ValueError):
@@ -77,9 +80,14 @@ def header_graph(root):
                 errors.append(f"{location}: quoted/relative public include is forbidden: {included}")
                 continue
             if "/" not in included and "\\" not in included:
-                continue  # Standard-library headers have no namespace ownership edge.
+                continue  # Standard-library headers have no domain ownership edge.
             included_parts = included.split("/")
-            if len(included_parts) != 4 or included_parts[0] != "NavalCommand" or included_parts[2] != "Api" or included_parts[1] not in ALLOWED:
+            if (
+                len(included_parts) != 4
+                or included_parts[0] != "NavalCommand"
+                or included_parts[2] != "Api"
+                or included_parts[1] not in ALLOWED
+            ):
                 errors.append(f"{location}: noncanonical or external domain include: {included}")
                 continue
             dependency = included_parts[1]
@@ -101,15 +109,21 @@ def target_graph(manifest):
     for line_number, line in enumerate(manifest.read_text(encoding="utf-8").splitlines(), 1):
         if not line:
             continue
-        target, separator, links = line.partition("|")
+        fields = line.split("|")
+        if len(fields) != 4:
+            errors.append(f"{manifest}:{line_number}: invalid target graph record")
+            continue
+        target, links, features, standard = fields
         location = f"{manifest}:{line_number} target {target} INTERFACE_LINK_LIBRARIES"
-        if not separator or not target.endswith(".Api") or target[:-4] not in ALLOWED:
+        if not target.endswith(".Api") or target[:-4] not in ALLOWED:
             errors.append(f"{location}: invalid target graph record")
             continue
         owner = target[:-4]
         if owner in declared:
             errors.append(f"{location}: duplicate target")
         declared.add(owner)
+        if standard != "23" or "cxx_std_23" not in features.split(";"):
+            errors.append(f"{manifest}:{line_number}: target {target} must use C++23")
         for dependency_target in filter(None, links.split(";")):
             if not dependency_target.endswith(".Api") or dependency_target[:-4] not in ALLOWED:
                 errors.append(f"{location}: unknown/external/alias/generator-expression dependency {dependency_target}")
@@ -129,10 +143,13 @@ def check(root, manifest):
     headers, populated, errors = header_graph(root)
     targets, declared, target_errors = target_graph(manifest)
     errors.extend(target_errors)
+    expected_domains = set(ALLOWED)
+    if populated != expected_domains:
+        errors.append(f"populated header domains {sorted(populated)} do not match current domains {sorted(expected_domains)}")
     if populated != declared:
         errors.append(f"{manifest}: populated header domains {sorted(populated)} do not match INTERFACE targets {sorted(declared)}")
     for owner in sorted(populated | declared):
-        if headers[owner] != targets[owner]:
+        if owner in ALLOWED and headers[owner] != targets[owner]:
             errors.append(
                 f"{manifest}: {owner}.Api direct links {sorted(targets[owner])} must exactly match "
                 f"its direct exported-header dependencies {sorted(headers[owner])}"
@@ -151,7 +168,7 @@ def main():
     except (ArchitectureError, OSError) as error:
         print(error, file=sys.stderr)
         return 1
-    print("Domain public-header and evaluated CMake dependency graphs conform to the exact allowlist.")
+    print("Domain public-header ownership and evaluated CMake dependency graphs conform to the allowlist.")
     return 0
 
 

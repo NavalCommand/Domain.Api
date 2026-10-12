@@ -12,7 +12,7 @@ static_assert(!std::is_assignable_v<Physics::MetersPerSecond&, double>);
 
 int main()
 {
-	Physics::Position seaLevel{{61.96}, {-10.37}, Physics::Meters{0}};
-	Physics::Position unknownAltitude{{61.96}, {-10.37}, std::nullopt};
-	return seaLevel.Altitude->Value == 0 && !unknownAltitude.Altitude && seaLevel.Latitude.Value == 61.96 ? 0 : 1;
+	const Physics::Position position{{61.96}, {-10.37}, {0}};
+	return position.Latitude.Value == 61.96 && position.Longitude.Value == -10.37 &&
+		position.Elevation.Value == 0 ? 0 : 1;
 }

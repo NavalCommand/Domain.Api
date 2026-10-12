@@ -1,4 +1,5 @@
 #pragma once
+#include <variant>
 
 #include <NavalCommand/Orders/Api/ExecutionRequest.h>
 #include <NavalCommand/Orders/Api/Status.h>

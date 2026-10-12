@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include <NavalCommand/Equipment/Api/TypeId.h>
+#include <NavalCommand/Resources/Api/Id.h>
 #include <NavalCommand/Resources/Api/Value.h>
-#include <NavalCommand/Resources/Api/Definition.h>
 
 namespace NavalCommand::Equipment::Api
 {

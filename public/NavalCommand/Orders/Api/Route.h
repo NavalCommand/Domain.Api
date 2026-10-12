@@ -1,5 +1,5 @@
 #pragma once
-#include <NavalCommand/Orders/Api/RouteMode.h>
+#include <NavalCommand/Physics/Api/Position.h>
 
 namespace NavalCommand::Orders::Api
 {
