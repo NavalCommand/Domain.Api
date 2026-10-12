@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <NavalCommand/Equipment/Api/LoadoutId.h>
-#include <NavalCommand/Observations/Api/Unit.h>
+#include <NavalCommand/Observations/Api/Instance.h>
 
 namespace NavalCommand::Orders::Api
 {

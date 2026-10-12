@@ -13,7 +13,7 @@
 
 namespace NavalCommand::Observations::Api
 {
-	struct Unit
+	struct Instance
 	{
 		Id Identity;
 		std::string ObservationName; // Observer-facing name. Can be a track name or real unit name

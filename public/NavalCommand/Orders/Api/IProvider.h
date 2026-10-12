@@ -18,8 +18,8 @@ namespace NavalCommand::Orders::Api
 		virtual ~IProvider() = default;
 
 		virtual NavalCommand::Error::Api::Result<std::optional<Error>> CanIssueOrder(const ExecutionRequest& request) const = 0;
-		virtual NavalCommand::Error::Api::Result<Id> IssueOrder(const ExecutionRequest& request) = 0;
-		virtual NavalCommand::Error::Api::DomainResult<ExecutionState, Error> GetOrderState(const Id& id);
+		virtual NavalCommand::Error::Api::DomainResult<Id, Error> IssueOrder(const ExecutionRequest& request) = 0;
+		virtual NavalCommand::Error::Api::Result<ExecutionState> GetOrderState(const Id& id);
 	};
 
 }

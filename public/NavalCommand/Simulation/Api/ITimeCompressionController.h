@@ -6,10 +6,10 @@
 
 namespace NavalCommand::Simulation::Api
 {
-	class ITimeCompressionProvider
+	class ITimeCompressionController
 	{
 	public:
-		virtual ~ITimeCompressionProvider() = default;
+		virtual ~ITimeCompressionController() = default;
 
 		virtual NavalCommand::Error::Api::DomainResult<void, Error> SetTimeCompression(TimeCompressionFactor factor) = 0;
 	};
