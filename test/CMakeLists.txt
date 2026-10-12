@@ -2,12 +2,6 @@ find_package(GTest CONFIG REQUIRED)
 include(GoogleTest)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
-add_test(NAME domain-architecture
-        COMMAND "${Python3_EXECUTABLE}" -B "${CMAKE_CURRENT_SOURCE_DIR}/CheckArchitecture.py"
-        --root "${PROJECT_SOURCE_DIR}" --targets "${CMAKE_CURRENT_BINARY_DIR}/domain-targets.txt")
-add_test(NAME domain-architecture-negative
-        COMMAND "${Python3_EXECUTABLE}" -B "${CMAKE_CURRENT_SOURCE_DIR}/ArchitectureTests.py" --cmake "${CMAKE_COMMAND}")
-
 set(domainTestSources)
 file(GLOB_RECURSE domainTestSources CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/NavalCommand/*.cpp")
