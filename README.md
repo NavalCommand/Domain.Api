@@ -1,25 +1,25 @@
 # Domain.Api
 
-Simulator- and gateway-independent C++23 value contracts. Public headers are organized by domain under `public/NavalCommand/<Domain>/Api/`; consumers link the matching header-only `.Api` target. Contributor and architecture rules are maintained in [`Docs/AGENTS.md`](../Docs/AGENTS.md), [`Docs/ARCHITECTURE.md`](../Docs/ARCHITECTURE.md), [`Docs/MODULE_STRUCTURE.md`](../Docs/MODULE_STRUCTURE.md), and [`Docs/CODE_STYLE.md`](../Docs/CODE_STYLE.md).
+Simulator- and gateway-independent C++23 value contracts. Public headers are organized by domain under `public/NavalCommand/<Domain>/Api/`; consumers link the corresponding header-only `NavalCommand.<Domain>.Api` target. Contributor and architecture rules are maintained in [`Docs/AGENTS.md`](../Docs/AGENTS.md), [`Docs/ARCHITECTURE.md`](../Docs/ARCHITECTURE.md), [`Docs/MODULE_STRUCTURE.md`](../Docs/MODULE_STRUCTURE.md), and [`Docs/CODE_STYLE.md`](../Docs/CODE_STYLE.md).
 
 ## Domain ownership and direct dependencies
 
 | Target | Responsibility | Direct dependencies |
 |---|---|---|
-| `Physics.Api` | Physical quantities and positions | None |
-| `Uncertainty.Api` | Values for known or unknown facts and resolutions | None |
-| `Error.Api` | Shared error and result contracts | None |
-| `Resources.Api` | Resource identifiers, definitions, and values | `Error.Api` |
-| `Equipment.Api` | Equipment instances, loadouts, effects, damage, and providers | `Error.Api`, `Physics.Api`, `Resources.Api` |
-| `Factions.Api` | Faction identity, alignment, and provider contracts | `Error.Api` |
-| `Units.Api` | Authoritative unit identity, type, faction, kinematics, equipment, and optional aircraft state | `Equipment.Api`, `Error.Api`, `Factions.Api`, `Physics.Api` |
-| `Observations.Api` | Observer-specific contact identity and uncertain observations | `Equipment.Api`, `Error.Api`, `Factions.Api`, `Physics.Api`, `Units.Api`, `Uncertainty.Api` |
-| `Operations.Api` | Current unit activity, navigation, air operations, and read-only unit-state access | `Equipment.Api`, `Error.Api`, `Observations.Api`, `Physics.Api`, `Units.Api`, `Uncertainty.Api` |
-| `Orders.Api` | Submitted command payloads and execution state | `Equipment.Api`, `Error.Api`, `Physics.Api`, `Units.Api` |
-| `Environment.Api` | Terrain, weather, and time provider contracts | `Error.Api`, `Physics.Api` |
-| `Simulation.Api` | Simulation pause and time-compression contracts | `Error.Api` |
+| `NavalCommand.Physics.Api` | Physical quantities and positions | None |
+| `NavalCommand.Uncertainty.Api` | Values for known or unknown facts and resolutions | None |
+| `NavalCommand.Error.Api` | Shared error and result contracts | None |
+| `NavalCommand.Resources.Api` | Resource identifiers, definitions, and values | `NavalCommand.Error.Api` |
+| `NavalCommand.Equipment.Api` | Equipment instances, loadouts, effects, damage, and providers | `NavalCommand.Error.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Resources.Api` |
+| `NavalCommand.Factions.Api` | Faction identity, alignment, and provider contracts | `NavalCommand.Error.Api` |
+| `NavalCommand.Units.Api` | Authoritative unit identity, type, faction, kinematics, equipment, and optional aircraft state | `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Factions.Api`, `NavalCommand.Physics.Api` |
+| `NavalCommand.Observations.Api` | Observer-specific contact identity and uncertain observations | `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Factions.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Units.Api`, `NavalCommand.Uncertainty.Api` |
+| `NavalCommand.Operations.Api` | Current unit activity, navigation, air operations, and read-only unit-state access | `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Observations.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Units.Api`, `NavalCommand.Uncertainty.Api` |
+| `NavalCommand.Orders.Api` | Submitted command payloads and execution state | `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Units.Api` |
+| `NavalCommand.Environment.Api` | Terrain, weather, and time provider contracts | `NavalCommand.Error.Api`, `NavalCommand.Physics.Api` |
+| `NavalCommand.Simulation.Api` | Simulation pause and time-compression contracts | `NavalCommand.Error.Api` |
 
-The domain direction is acyclic. In particular, `Observations.Api` may use authoritative unit types, and `Operations.Api` may depend on both units and observations. `Units.Api` depends on neither observations nor operations.
+The domain direction is acyclic. In particular, `NavalCommand.Observations.Api` may use authoritative unit types, and `NavalCommand.Operations.Api` may depend on both units and observations. `NavalCommand.Units.Api` depends on neither observations nor operations.
 
 ## Units, observations, operations, and orders
 
@@ -31,39 +31,56 @@ The domain direction is acyclic. In particular, `Observations.Api` may use autho
 
 `Operations::Api::UnitState` is a separate projection of current operational behavior. It contains an `Activity` value and optional navigation and air-operations values. The `std::monostate` activity means unknown or unreported activity, distinct from `Idle`; absent navigation or air-operations data is left absent. An activity that refers to an observed contact uses `Observations::Api::Id`, including engagement targets and evasive-maneuver danger sources. `Operations::Api::IProvider` accepts a true `Units::Api::Id` for the friendly unit whose state is requested; its implementation is scoped to the controlling faction.
 
-`Orders.Api` remains separate from `Operations.Api`: an order records requested behavior, while operations report current behavior. `Orders::Api::ExecutionRequest::Executor` remains a `Units::Api::Id` because it identifies the friendly unit executing the request. The order model does not use the operations projection.
+`NavalCommand.Orders.Api` remains separate from `NavalCommand.Operations.Api`: an order records requested behavior, while operations report current behavior. `Orders::Api::ExecutionRequest::Executor` remains a `Units::Api::Id` because it identifies the friendly unit executing the request. The order model does not use the operations projection.
 
-## Testing
+## Build and testing
 
-GoogleTest and GoogleMock are test-only dependencies managed in vcpkg manifest mode. The pinned registry baseline and `gtest` dependency are declared in [`vcpkg.json`](vcpkg.json); no GoogleTest source is fetched or vendored by this repository.
+CMake provides a C++23 `INTERFACE` library for each domain, named `NavalCommand.<Domain>.Api` (for example, `NavalCommand.Units.Api`). The domain libraries have no GoogleTest dependency. The sole C++ test executable is `NavalCommand.Domain.Api.Test`.
 
-Install vcpkg, bootstrap it, and set `VCPKG_ROOT` to its checkout before configuring. For example, in PowerShell:
+### Prerequisites
+
+The checked-in CMake presets currently support **Windows x64 with MSVC and Ninja** (Debug and Release). Run CMake from an environment where `cl.exe` and Ninja are available, such as an MSVC developer shell.
+
+GoogleTest and GoogleMock are test-only dependencies installed through vcpkg manifest mode from `vcpkg.json`. Install and bootstrap vcpkg, then set `VCPKG_ROOT` to its checkout:
 
 ```powershell
 $env:VCPKG_ROOT = "C:\path\to\vcpkg"
 & "$env:VCPKG_ROOT\bootstrap-vcpkg.bat"
 ```
 
-On Linux, use the vcpkg checkout path for `VCPKG_ROOT` and run `"$VCPKG_ROOT/bootstrap-vcpkg.sh"`. The Windows presets select `x64-windows-static`, which uses the static MSVC runtime requested by the presets. Linux presets use `x64-linux` and Clang.
+The Windows presets use the `x64-windows-static` vcpkg triplet, matching the statically linked MSVC runtime specified by the presets.
 
-Configure, build, and run CTest with the matching presets:
+### Configure, build, and run tests
+
+From the repository root:
 
 ```powershell
 cmake --preset windows-msvc-debug
-cmake --build --preset windows-msvc-debug
-ctest --preset windows-msvc-debug
+cmake --build o/windows-msvc-debug
+ctest --test-dir o/windows-msvc-debug --output-on-failure
 ```
 
-```sh
-cmake --preset linux-clang-debug
-cmake --build --preset linux-clang-debug
-ctest --preset linux-clang-debug
+For Release, replace `windows-msvc-debug` with `windows-msvc-release` in all three commands. The presets define **configure presets only**; they do not define separate CMake build or CTest presets.
+
+`test/CMakeLists.txt` compiles all C++ tests into `NavalCommand.Domain.Api.Test` and registers individual GoogleTest cases with CTest via `gtest_discover_tests()`. There is no separate generated per-header compilation suite or Python architecture-test suite.
+
+### Test and mock organization
+
+Tests mirror the public namespace/folder hierarchy, with one `<TypeName>Test.cpp` file per tested contract:
+
+```text
+public/NavalCommand/Units/Api/Instance.h
+test/NavalCommand/Units/Api/InstanceTest.cpp
 ```
 
-Use the corresponding `*-release` preset names for Release builds. CTest discovers each GoogleTest case and also runs architecture validation plus the generated independent public-header compilation check.
+Add new C++ tests under `test/NavalCommand/<Domain>/Api/` using GoogleTest's `TEST` or `TEST_F`. CMake discovers their `.cpp` sources for the existing `NavalCommand.Domain.Api.Test` executable. Keep compile-time `static_assert` checks for type-level invariants.
 
-Manually maintained tests mirror the public namespace directories: for example, `public/NavalCommand/Units/Api/Instance.h` is tested in `test/NavalCommand/Units/Api/InstanceTest.cpp`. Name each file `<TypeName>Test.cpp`, keep assertions with the contract they cover, and use ordinary `TEST` or `TEST_F` cases. To add a test for a public type, add a source under its matching `test/NavalCommand/<Domain>/Api/` directory and link through the existing `domain-tests` target. CMake separately generates one build-directory translation unit per public header; each includes only that header and links through its owning domain target.
+GoogleMock definitions live in `mock/`, following the same hierarchy:
 
-Mocks mirror the same domain structure under `mock/` and use `<InterfaceName>Mock.h`, for example `mock/NavalCommand/Units/Api/IInstanceProviderMock.h`. Put the mock in the interface's namespace, include the public interface, inherit it, and declare every pure virtual method with `MOCK_METHOD` using the exact signature. Add an `EXPECT_CALL` compilation/use case in the matching `test/NavalCommand/<Domain>/Api/<InterfaceName>MockTest.cpp`. The `mock/` include directory is exposed only to the test executable; it is not part of any public `.Api` target.
+```text
+public/NavalCommand/Units/Api/IInstanceProvider.h
+mock/NavalCommand/Units/Api/IInstanceProviderMock.h
+test/NavalCommand/Units/Api/IInstanceProviderMockTest.cpp
+```
 
-CTest also validates public-header ownership and direct domain dependencies, rejects forbidden dependency edges and cycles, and runs negative architecture fixtures. The domain dependency direction remains acyclic, including `Operations.Api → Observations.Api → Units.Api`; `Units.Api` does not depend on observations or operations.
+Mocks retain their public interface's namespace, inherit that interface, and implement its virtual methods with `MOCK_METHOD` using the exact signatures. Mock tests can use `EXPECT_CALL`. The `mock/` include directory and GoogleTest/GoogleMock dependencies belong to the test executable only, not the domain libraries.
