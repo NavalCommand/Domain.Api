@@ -1,8 +1,8 @@
 #pragma once
-#include <string>
 #include <NavalCommand/Physics/Api/Position.h>
+#include <string>
 
-namespace NavalCommand::Units::Api
+namespace NavalCommand::Operations::Api
 {
 	struct Waypoint
 	{

@@ -1,8 +1,8 @@
 #pragma once
-#include <NavalCommand/Units/Api/Waypoint.h>
+#include <NavalCommand/Operations/Api/Waypoint.h>
 #include <vector>
 
-namespace NavalCommand::Units::Api
+namespace NavalCommand::Operations::Api
 {
 	struct Navigation
 	{

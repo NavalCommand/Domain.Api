@@ -18,6 +18,7 @@ HEADER_FOR_DOMAIN = {
     "Factions": "Id.h",
     "Observations": "Id.h",
     "Orders": "IProvider.h",
+    "Operations": "Activity.h",
     "Physics": "Position.h",
     "Resources": "Id.h",
     "Units": "Id.h",
@@ -84,6 +85,10 @@ class ArchitectureTests(unittest.TestCase):
         self.append_include("Units", "Observations")
         self.assert_rejected(self.configure(), r"forbidden include edge Units.Api -> Observations.Api")
 
+    def test_forbidden_units_operations_include(self):
+        self.append_include("Units", "Operations")
+        self.assert_rejected(self.configure(), r"forbidden include edge Units.Api -> Operations.Api")
+
     def test_forbidden_observations_orders_include(self):
         self.append_include("Observations", "Orders")
         self.assert_rejected(self.configure(), r"forbidden include edge Observations.Api -> Orders.Api")
@@ -103,6 +108,24 @@ class ArchitectureTests(unittest.TestCase):
     def test_forbidden_units_observations_target(self):
         manifest = self.configure("target_link_libraries(Units.Api INTERFACE Observations.Api)")
         self.assert_rejected(manifest, r"forbidden target edge Units.Api -> Observations.Api")
+
+    def test_forbidden_units_operations_target(self):
+        manifest = self.configure("target_link_libraries(Units.Api INTERFACE Operations.Api)")
+        self.assert_rejected(manifest, r"forbidden target edge Units.Api -> Operations.Api")
+
+    def test_units_operations_header_cycle(self):
+        self.append_include("Units", "Operations")
+        self.assert_rejected(self.configure(), r"Public header cycle:")
+
+    def test_units_operations_target_cycle(self):
+        manifest = self.configure("target_link_libraries(Units.Api INTERFACE Operations.Api)")
+        self.assert_rejected(manifest, r"CMake target cycle:")
+
+    def test_operations_target_uses_cpp23(self):
+        manifest = self.configure(
+            "set_target_properties(Operations.Api PROPERTIES CXX_STANDARD 26 INTERFACE_COMPILE_FEATURES cxx_std_26)"
+        )
+        self.assert_rejected(manifest, r"target Operations.Api must use C\+\+23")
 
     def test_domain_target_uses_cpp23(self):
         manifest = self.configure(

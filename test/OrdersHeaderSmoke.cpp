@@ -17,6 +17,7 @@ namespace Units = NavalCommand::Units::Api;
 
 static_assert(std::is_abstract_v<Orders::IProvider>);
 static_assert(std::variant_size_v<decltype(Orders::ExecutionRequest::Payload)> == 2);
+static_assert(std::is_same_v<decltype(Orders::ExecutionRequest::Executor), Units::Id>);
 
 int main()
 {

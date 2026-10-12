@@ -12,12 +12,13 @@ ALLOWED = {
     "Error": set(),
     "Factions": {"Error"},
     "Observations": {"Equipment", "Error", "Factions", "Physics", "Units", "Uncertainty"},
+    "Operations": {"Equipment", "Error", "Observations", "Physics", "Units", "Uncertainty"},
     "Orders": {"Equipment", "Error", "Physics", "Units"},
     "Physics": set(),
     "Resources": {"Error"},
     "Simulation": {"Error"},
     "Uncertainty": set(),
-    "Units": {"Equipment", "Error", "Factions", "Physics", "Uncertainty"},
+    "Units": {"Equipment", "Error", "Factions", "Physics"},
 }
 INCLUDE = re.compile(r"^\s*#\s*include\b([^\n]*)", re.MULTILINE)
 LITERAL_INCLUDE = re.compile(r'\s*([<"])([^>"\n]+)[>"]\s*(?://.*|/\*.*\*/\s*)?$')

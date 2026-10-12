@@ -1,11 +1,10 @@
 #pragma once
-#include <NavalCommand/Physics/Api/Seconds.h>
-#include <NavalCommand/Units/Api/AircraftInventoryEntry.h>
+#include <NavalCommand/Operations/Api/AircraftInventoryEntry.h>
 #include <cstdint>
 #include <optional>
 #include <vector>
 
-namespace NavalCommand::Units::Api
+namespace NavalCommand::Operations::Api
 {
 	struct AirOperations
 	{

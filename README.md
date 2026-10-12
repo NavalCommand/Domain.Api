@@ -1,38 +1,38 @@
 # Domain.Api
 
-Transport-, simulator- and gateway-independent operational C++ value contracts. Read the authoritative [contributor rules](../Docs/AGENTS.md), [architecture](../Docs/ARCHITECTURE.md), [module structure](../Docs/MODULE_STRUCTURE.md) and [code style](../Docs/CODE_STYLE.md) before changes.
+Simulator- and gateway-independent C++23 value contracts. Public headers are organized by domain under `public/NavalCommand/<Domain>/Api/`; consumers link the matching header-only `.Api` target. Contributor and architecture rules are maintained in [`Docs/AGENTS.md`](../Docs/AGENTS.md), [`Docs/ARCHITECTURE.md`](../Docs/ARCHITECTURE.md), [`Docs/MODULE_STRUCTURE.md`](../Docs/MODULE_STRUCTURE.md), and [`Docs/CODE_STYLE.md`](../Docs/CODE_STYLE.md).
 
-## Ownership and direct dependencies
+## Domain ownership and direct dependencies
 
-Every populated namespace mirrors `public/NavalCommand/<Domain>/Api/` and owns an independent header-only `INTERFACE` target. Consumers link the target whose contracts they use.
-
-| Target | Responsibility | Allowed direct dependencies |
+| Target | Responsibility | Direct dependencies |
 |---|---|---|
-| `Physics.Api` | Physical quantities and position | None |
-| `Uncertainty.Api` | Minimal two-state `Exact<T>` value | None |
-| `Catalog.Api` | Definitive catalog definitions, IDs, loadouts, capability effects/operations and resource definitions | `Physics.Api` |
-| `Units.Api` | Authoritative simulation identity, kinematics, equipment and supported true state | `Catalog.Api`, `Physics.Api` |
-| `Observations.Api` | Observer-specific contact identity, uncertain unit/equipment state, evidence and observed navigation/air operations | `Catalog.Api`, `Physics.Api`, `Uncertainty.Api` |
-| `Orders.Api` | Typed command requests/results and observer-specific order-availability overlay | `Observations.Api`, `Physics.Api` (Uncertainty.Api is allowlisted if needed; current headers do not use it) |
-| `Environment.Api` (reserved) | Future verified environment facts | `Physics.Api`, `Uncertainty.Api` |
-| `World.Api` | Separate simulation and observer snapshots, membership relationships, privileged capture labels | `Units.Api`, `Observations.Api`, `Physics.Api`, `Uncertainty.Api` |
+| `Physics.Api` | Physical quantities and positions | None |
+| `Uncertainty.Api` | Values for known or unknown facts and resolutions | None |
+| `Error.Api` | Shared error and result contracts | None |
+| `Resources.Api` | Resource identifiers, definitions, and values | `Error.Api` |
+| `Equipment.Api` | Equipment instances, loadouts, effects, damage, and providers | `Error.Api`, `Physics.Api`, `Resources.Api` |
+| `Factions.Api` | Faction identity, alignment, and provider contracts | `Error.Api` |
+| `Units.Api` | Authoritative unit identity, type, faction, kinematics, equipment, and optional aircraft state | `Equipment.Api`, `Error.Api`, `Factions.Api`, `Physics.Api` |
+| `Observations.Api` | Observer-specific contact identity and uncertain observations | `Equipment.Api`, `Error.Api`, `Factions.Api`, `Physics.Api`, `Units.Api`, `Uncertainty.Api` |
+| `Operations.Api` | Current unit activity, navigation, air operations, and read-only unit-state access | `Equipment.Api`, `Error.Api`, `Observations.Api`, `Physics.Api`, `Units.Api`, `Uncertainty.Api` |
+| `Orders.Api` | Submitted command payloads and execution state | `Equipment.Api`, `Error.Api`, `Physics.Api`, `Units.Api` |
+| `Environment.Api` | Terrain, weather, and time provider contracts | `Error.Api`, `Physics.Api` |
+| `Simulation.Api` | Simulation pause and time-compression contracts | `Error.Api` |
 
-`Environment.Api` currently has no target or headers because no verified environment contract is implemented. The checker enforces this ownership boundary. The maintained graph checker validates canonical public-header paths, exact allowlisted direct includes and target edges, cycles, populated domain/target parity, and exact correspondence between direct header and target dependencies. It rejects macros, relative includes, aliases, generator-expression links, unknown links and reserved-boundary violations. Tests inject forbidden edges into copied headers and actual CMake target declarations.
+The domain direction is acyclic. In particular, `Observations.Api` may use authoritative unit types, and `Operations.Api` may depend on both units and observations. `Units.Api` depends on neither observations nor operations.
 
-## Simulation truth and observations
+## Units, observations, operations, and orders
 
-`Units::Api::UnitId` identifies an authoritative simulated tactical entity. `UnitInstance` contains definite expressed properties: optional catalog type; independently optional definite position, speed, heading and course; optional equipment inventory, route, flight and air-operations state. Equipment operational facts, resources and air-inventory counts are also optional when the source does not express them. The model contains no observer/contact ID, uncertainty wrapper or eligibility and does not invent zero/default truth. An independently simulated launched missile/projectile may be a `UnitInstance` with its own ID/type/kinematics; it need not have aircraft, crew, hull, or air-operations components. Carried missile inventory is launcher equipment/resource state, never the launched projectile entity.
+**Units represent authoritative unit state; observations represent observer-specific information; operations represent current unit behavior; orders represent requested behavior.**
 
-`Observations::Api::ObserverId` scopes a perspective; `ObservationId` identifies an observer-side representation and is distinct from true `UnitId`. `UnitObservation` uses `Exact<T>` only for wholly known or unknown facts; its position is one `ObservedPosition` variant with either `Exact<Physics::Api::Position>` or `PartiallyLocalizedPosition` (including optional source-backed major/minor/orientation error ellipse). Own exact positions remain distinct from approximate contact centers. Equipment and contributor vectors list only currently reported/source-supported items; empty does not prove exhaustive absence. A contributor's observer handle is an `ObservationId`, never a truth `UnitId`; aggregate plotted contacts without supported individual attribution have no fabricated contributors. Supported own names remain known, while contacts without source-backed names remain Unknown. Contacts may be false, duplicate, fused or ambiguous; no one-to-one truth mapping exists in operational observation types. Snapshot capture and exact measurement times remain distinct.
+`Units::Api::Instance` contains authoritative identity, name, type, faction, kinematics, equipment, and an optional aircraft instance. It does not contain activity, navigation, or air-operations state, and it does not depend on observer-specific identifiers or uncertainty types.
 
-`World::Api::SimulationSnapshot` is privileged truth and authoritative `UnitId` membership; `FactionId` and `TaskForceId` are distinct World-owned identifiers. `ObserverSnapshot` is one perspective containing only Observations types and relationships keyed by `ObservationId`, with uncertain affiliations. There is no mixed View, truth ID, hidden truth relation, or correlation in an observer snapshot. `RecordedSnapshots` is a privileged in-memory capture contract that may hold truth, independent perspectives and zero-or-more `ObservationAssociation` rows; vector associations support many-to-many mappings and are never emitted through observer APIs. These contracts do not claim deterministic engine replay. Decision/outcome capture that depends on Orders belongs in an internal gateway recorder envelope, not in World and not in public RPC.
+`Observations::Api::Id` identifies an observer-side contact and is distinct from `Units::Api::Id`, which identifies an authoritative unit. An observation may be unknown, ambiguous, or uncorrelated with a known true unit. Observation values use the uncertainty contracts where information is not fully known.
 
-## Catalog, resources and orders
+`Operations::Api::UnitState` is a separate projection of current operational behavior. It contains an `Activity` value and optional navigation and air-operations values. The `std::monostate` activity means unknown or unreported activity, distinct from `Idle`; absent navigation or air-operations data is left absent. An activity that refers to an observed contact uses `Observations::Api::Id`, including engagement targets and evasive-maneuver danger sources. `Operations::Api::IProvider` accepts a true `Units::Api::Id` for the friendly unit whose state is requested; its implementation is scoped to the controlling faction.
 
-Catalog IDs are distinct strong types. Catalog definitions are definitive only for the resolved context/source subset; absent support remains absent rather than guessed. UnitType.Platform is optional, so projectile unit types need not be falsely classified as surface/land/air platforms. When platform category is supported, Aircraft is classified as FixedWingAircraft or RotaryWingAircraft (a helicopter is rotary-wing aircraft), alongside meaningful SurfaceVessel, Submarine and LandPlatform categories. One `EquipmentType` represents one operational capability with effects and operations. `Use` invokes once; `SetActive` requests operating state. No duplicated CapabilityIndex, generic Active/Passive/Guided mode, or invocation-duration field exists. Resource values preserve exact discrete `uint64_t` counts or continuous `double` quantities; definitions own representation, SI measurement unit, and consumable/allocatable accounting semantics.
+`Orders.Api` remains separate from `Operations.Api`: an order records requested behavior, while operations report current behavior. `Orders::Api::ExecutionRequest::Executor` remains a `Units::Api::Id` because it identifies the friendly unit executing the request. The order model does not use the operations projection.
 
-Orders are overlays over observer handles. `OrderAvailability`, `Request` and observer-visible results use `ObserverId` and `ObservationId`, with session/freshness context; typed order kinds replace arbitrary eligibility strings, and each request has exactly one variant payload (`RouteCommand` or `LaunchAircraft`). Route results preserve waypoint labels through `Observations::Api::ObservedRoutePoint`. Observed air-inventory counts are grouped by aircraft type and squadron; supported loadouts are separate choices, not repeated stock. A launch order uses `Observations::Api::AircraftSelection` combining type, squadron and one loadout, not an opaque permission token. Inventory does not imply launch permission. The privileged execution provider must revalidate current authority, freshness, native safety and preconditions, then resolve the observation handle privately. No Orders header depends on Units or World.
+## Build and checks
 
-## Tests and verification
-
-CTest runs the architecture checker/negative fixtures, standalone compilation for every public header through its owning target, and semantic smoke consumers for Physics, Uncertainty, Catalog, Units, Observations, Orders and World. Semantic fixtures cover truth versus uncertain observations, independent observer IDs, ambiguous/fused contacts, projectile entities without platform assumptions, observer-scoped orders, independent world snapshots, and privileged many-to-many recording associations. Parent integration is responsible for cross-repository builds and verification for this cutover.
+CMake exports each populated domain as a C++23 `INTERFACE` target. CTest runs architecture checks for public-header ownership, direct header and target dependencies, forbidden edges, and cycles; semantic smoke consumers for every domain; and a standalone compile-and-link consumer for every public header. The architecture tests also exercise forbidden dependency and cycle fixtures.

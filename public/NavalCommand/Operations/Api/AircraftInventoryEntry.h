@@ -6,11 +6,11 @@
 #include <string>
 #include <vector>
 
-namespace NavalCommand::Units::Api
+namespace NavalCommand::Operations::Api
 {
 	struct AircraftInventoryEntry
 	{
-		TypeId Type;
+		Units::Api::TypeId Type;
 		std::string Squadron;
 		std::optional<std::uint32_t> UnreservedCount;
 		std::optional<std::vector<Equipment::Api::LoadoutId>> Loadouts;

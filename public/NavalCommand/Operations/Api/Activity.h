@@ -1,16 +1,15 @@
 #pragma once
-#include <variant>
 #include <NavalCommand/Equipment/Api/TypeId.h>
+#include <NavalCommand/Observations/Api/Id.h>
 #include <NavalCommand/Physics/Api/Position.h>
 #include <NavalCommand/Physics/Api/Radians.h>
-#include <NavalCommand/Units/Api/Id.h>
 #include <NavalCommand/Uncertainty/Api/Exact.h>
+#include <variant>
 
-namespace NavalCommand::Units::Api
+namespace NavalCommand::Operations::Api
 {
 	struct Idle
 	{
-
 	};
 
 	struct MovingToWaypoint
@@ -20,14 +19,19 @@ namespace NavalCommand::Units::Api
 
 	struct EngagingWith
 	{
-		std::variant<std::monostate, Id, Physics::Api::Position, Physics::Api::Radians> Target;
+		std::variant<std::monostate, Observations::Api::Id, Physics::Api::Position, Physics::Api::Radians> Target;
 		Equipment::Api::TypeId EquipmentType;
 	};
 
 	struct EvasiveManeuvers
 	{
-		Uncertainty::Api::Exact<Id> DangerSource;
+		Uncertainty::Api::Exact<Observations::Api::Id> DangerSource;
 	};
 
-	using Activity = std::variant<std::monostate, Idle, MovingToWaypoint, EngagingWith, EvasiveManeuvers>;
+	using Activity = std::variant<
+		std::monostate,
+		Idle,
+		MovingToWaypoint,
+		EngagingWith,
+		EvasiveManeuvers>;
 }

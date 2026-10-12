@@ -16,6 +16,7 @@ set(domainSmokeTests
     Factions:FactionsHeaderSmoke.cpp
     Units:UnitsHeaderSmoke.cpp
     Observations:ObservationsHeaderSmoke.cpp
+    Operations:OperationsHeaderSmoke.cpp
     Orders:OrdersHeaderSmoke.cpp
     Environment:EnvironmentHeaderSmoke.cpp
     Simulation:SimulationHeaderSmoke.cpp)
