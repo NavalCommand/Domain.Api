@@ -11,7 +11,7 @@ namespace NavalCommand::Equipment::Api
 	struct Instance
 	{
 		TypeId Type;
-		OperationalState OperationalReadiness;
+		OperationalState State;
 		Damage DamageState;
 		Resources::Api::Id ExpendableResourceId;
 		Resources::Api::Value ExpendableResourceValue;
