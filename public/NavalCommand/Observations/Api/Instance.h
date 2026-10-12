@@ -27,6 +27,5 @@ namespace NavalCommand::Observations::Api
 
 		// Only source-supported attribution; empty means no contributors reported.
 		std::vector<Contributor> Contributors;
-		Uncertainty::Api::Exact<Physics::Api::Seconds> MeasuredAt;
 	};
 }
