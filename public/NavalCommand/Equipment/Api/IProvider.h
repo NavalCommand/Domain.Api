@@ -4,6 +4,7 @@
 #include <vector>
 #include <NavalCommand/Equipment/Api/Type.h>
 #include <NavalCommand/Equipment/Api/Error.h>
+#include <NavalCommand/Error/Api/Result.h>
 
 namespace NavalCommand::Equipment::Api
 {
@@ -12,8 +13,8 @@ namespace NavalCommand::Equipment::Api
 	public:
 		virtual ~IProvider() = default;
 
-		virtual std::expected<Type, Error> GetEquipmentType(const TypeId& typeId) const = 0;
-		virtual std::vector<TypeId> GetEquipmentTypes() = 0;
+		virtual NavalCommand::Error::Api::DomainResult<Type, Error> GetEquipmentType(const TypeId& typeId) const = 0;
+		virtual NavalCommand::Error::Api::Result<std::vector<TypeId>> GetEquipmentTypes() = 0;
 	};
 
 }

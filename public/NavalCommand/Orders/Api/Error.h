@@ -4,8 +4,10 @@ namespace NavalCommand::Orders::Api
 {
 	enum class Error
 	{
-		InvalidId,
-		InvalidRequest
+		Unknown,
+		TemporarilyBlocked,
+		Unsupported,
+		InvalidRequest,
+		Interrupted
 	};
-
 }

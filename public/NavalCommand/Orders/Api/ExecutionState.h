@@ -2,7 +2,7 @@
 
 #include <NavalCommand/Orders/Api/ExecutionRequest.h>
 #include <NavalCommand/Orders/Api/Status.h>
-#include <NavalCommand/Orders/Api/Failure.h>
+#include <NavalCommand/Orders/Api/Error.h>
 #include <NavalCommand/Orders/Api/Id.h>
 
 namespace NavalCommand::Orders::Api
@@ -11,6 +11,6 @@ namespace NavalCommand::Orders::Api
 	{
 		Id OrderId;
 		ExecutionRequest Request;
-		std::variant<Status, Failure> OrderStatus;
+		std::variant<Status, Error> OrderStatus;
 	};
 }
