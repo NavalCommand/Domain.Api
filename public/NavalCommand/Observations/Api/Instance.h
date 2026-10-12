@@ -19,7 +19,7 @@ namespace NavalCommand::Observations::Api
 		Id Identity;
 		std::string ObservationName; // Observer-facing name. Can be a track name or real unit name
 		Factions::Api::Id ObserverFaction;
-		Uncertainty::Api::Exact<Factions::Api::Id> ObservationFaction;
+		Uncertainty::Api::Exact<Factions::Api::Id> ObservedFaction;
 		Uncertainty::Api::Exact<Units::Api::TypeId> Type;
 		Uncertainty::Api::Exact<Units::Api::Classification> Kind; // Classification may be known before exact type is certain
 		Kinematics Kinematics;
