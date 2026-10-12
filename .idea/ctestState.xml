@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="CidrCTestProjectState">
-    <ctestState>
-      <lineNumber testId="path:test/CMakeLists.txt test:domain-architecture" value="4" />
-      <lineNumber testId="path:test/CMakeLists.txt test:domain-architecture-negative" value="7" />
-    </ctestState>
-  </component>
-</project>
