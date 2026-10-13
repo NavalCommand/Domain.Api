@@ -23,24 +23,23 @@ namespace NavalCommand::Units::Api
 		std::vector<Equipment::Api::Loadout> Loadouts;
 	};
 
-	// Deduplicated union of configured roles, or nullopt if any role data
-	// is unavailable. Examine individual loadouts for partial knowledge.
-	inline std::optional<std::vector<Classification::Api::Role>> GetRoles(const Type& type)
+	// Deduplicated union of configured roles. Examine individual loadouts for partial knowledge.
+	inline std::vector<Classification::Api::Role> GetRoles(const Type& type)
 	{
 		if (type.Loadouts.empty())
 		{
-			return std::nullopt;
+			return {};
 		}
 
 		std::vector<Classification::Api::Role> roles;
 		for (const auto& loadout : type.Loadouts)
 		{
-			if (!loadout.Roles.has_value())
+			if (!loadout.Roles.empty())
 			{
-				return std::nullopt;
+				return {};
 			}
 
-			for (const auto role : *loadout.Roles)
+			for (const auto role : loadout.Roles)
 			{
 				if (std::find(roles.begin(), roles.end(), role) == roles.end())
 				{
