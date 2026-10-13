@@ -19,19 +19,18 @@ TEST(LoadoutTest, OwnsItsFits)
 	EXPECT_EQ(loadout.Equipment.front().TypeId.Value, "external-tank");
 }
 
-TEST(LoadoutTest, HasOptionalDesignedRoles)
+TEST(LoadoutTest, CarriesConfigurationRoles)
 {
 	Equipment::Loadout loadout;
-	EXPECT_FALSE(loadout.Roles.has_value());
+	EXPECT_TRUE(loadout.Roles.empty());
 
 	loadout.Roles = std::vector<Classification::Role>{
 		Classification::Role::AirDefence,
 		Classification::Role::AirSuperiority
 	};
-	ASSERT_TRUE(loadout.Roles.has_value());
-	ASSERT_EQ(loadout.Roles->size(), 2);
-	EXPECT_EQ(loadout.Roles->front(), Classification::Role::AirDefence);
+	ASSERT_EQ(loadout.Roles.size(), 2);
+	EXPECT_EQ(loadout.Roles.front(), Classification::Role::AirDefence);
 
-	loadout.Roles.emplace();
-	EXPECT_TRUE(loadout.Roles->empty());
+	loadout.Roles.clear();
+	EXPECT_TRUE(loadout.Roles.empty());
 }

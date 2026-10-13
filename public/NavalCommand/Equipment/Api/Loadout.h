@@ -3,7 +3,6 @@
 #include <NavalCommand/Classification/Api/Role.h>
 #include <NavalCommand/Equipment/Api/Fit.h>
 #include <NavalCommand/Equipment/Api/LoadoutId.h>
-#include <optional>
 #include <vector>
 
 namespace NavalCommand::Equipment::Api

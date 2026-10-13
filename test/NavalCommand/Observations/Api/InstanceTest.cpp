@@ -9,7 +9,6 @@
 #include <NavalCommand/Units/Api/Id.h>
 #include <NavalCommand/Units/Api/TypeId.h>
 #include <gtest/gtest.h>
-#include <optional>
 #include <type_traits>
 #include <variant>
 
@@ -30,7 +29,7 @@ using ObservedType = Uncertainty::Resolution<
 static_assert(std::is_same_v<decltype(Observations::Instance::Identity), Observations::Id>);
 static_assert(std::is_same_v<decltype(Observations::Instance::Type), ObservedType>);
 static_assert(std::is_same_v<decltype(Observations::Instance::CurrentLoadout),
-	Uncertainty::Exact<std::optional<Equipment::LoadoutId>>>);
+	Uncertainty::Exact<Equipment::LoadoutId>>);
 static_assert(std::variant_size_v<ObservedType::Variant> == 5);
 
 TEST(ObservationInstanceTest, RetainsUncertaintyAndSourceAttribution)
@@ -77,21 +76,19 @@ TEST(ObservationInstanceTest, SupportsEveryIdentificationResolution)
 	EXPECT_EQ(type.GetIf<Units::TypeId>()->Value, "f14a");
 }
 
-TEST(ObservationInstanceTest, DistinguishesUnknownAbsentAndSelectedLoadouts)
+TEST(ObservationInstanceTest, DistinguishesUnknownAndSelectedLoadouts)
 {
 	Observations::Instance contact;
 	EXPECT_FALSE(contact.CurrentLoadout.IsKnown());
 
-	using ObservedLoadout = Uncertainty::Exact<std::optional<Equipment::LoadoutId>>;
-	contact.CurrentLoadout = ObservedLoadout::Known(std::nullopt);
+	using ObservedLoadout = Uncertainty::Exact<Equipment::LoadoutId>;
+	contact.CurrentLoadout = ObservedLoadout::Known(Equipment::LoadoutId{"empty"});
 	ASSERT_TRUE(contact.CurrentLoadout.IsKnown());
-	EXPECT_FALSE(contact.CurrentLoadout.Value().has_value());
+	EXPECT_EQ(contact.CurrentLoadout.Value().Value, "empty");
 
-	contact.CurrentLoadout = ObservedLoadout::Known(
-		std::optional<Equipment::LoadoutId>{Equipment::LoadoutId{"anti-submarine"}});
+	contact.CurrentLoadout = ObservedLoadout::Known(Equipment::LoadoutId{"anti-submarine"});
 	ASSERT_TRUE(contact.CurrentLoadout.IsKnown());
-	ASSERT_TRUE(contact.CurrentLoadout.Value().has_value());
-	EXPECT_EQ(contact.CurrentLoadout.Value()->Value, "anti-submarine");
+	EXPECT_EQ(contact.CurrentLoadout.Value().Value, "anti-submarine");
 
 	contact.CurrentLoadout = ObservedLoadout::Unknown();
 	EXPECT_FALSE(contact.CurrentLoadout.IsKnown());

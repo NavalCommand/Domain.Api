@@ -17,7 +17,7 @@ namespace NavalCommand::Units::Api
 		Id Identity;
 		std::string Name;
 		TypeId Type;
-		// Selected loadout, if assigned/applicable.
+		// Selected configuration; even an empty configuration has a LoadoutId.
 		Equipment::Api::LoadoutId CurrentLoadout;
 		Factions::Api::Id Faction;
 		Kinematics Kinematics;

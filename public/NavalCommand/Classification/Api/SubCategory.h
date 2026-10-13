@@ -1,5 +1,7 @@
-
 #pragma once
+
+#include <NavalCommand/Classification/Api/Category.h>
+#include <utility>
 
 namespace NavalCommand::Classification::Api
 {
@@ -34,6 +36,8 @@ namespace NavalCommand::Classification::Api
 		HeavyweightTorpedo,
 		LightweightTorpedo,
 		NavalMine,
+
+		// Naval devices
 		Noisemaker,
 		SelfPropelledAcousticDecoy,
 		Sonobuoy,
@@ -49,4 +53,55 @@ namespace NavalCommand::Classification::Api
 		MilitaryInstallation,
 		CivilianInstallation
 	};
+
+	// Every declared subcategory belongs to exactly one category.
+	constexpr Category GetCategory(SubCategory subCategory) noexcept
+	{
+		switch (subCategory)
+		{
+		case SubCategory::FixedWingAircraft:
+		case SubCategory::RotaryWingAircraft:
+		case SubCategory::TiltRotorAircraft:
+			return Category::Aircraft;
+		case SubCategory::CruiseMissile:
+		case SubCategory::BallisticMissile:
+			return Category::Missile;
+		case SubCategory::AircraftCarrier:
+		case SubCategory::Cruiser:
+		case SubCategory::Destroyer:
+		case SubCategory::Frigate:
+		case SubCategory::Corvette:
+		case SubCategory::PatrolVessel:
+		case SubCategory::AmphibiousVessel:
+		case SubCategory::AuxiliaryVessel:
+		case SubCategory::MerchantVessel:
+			return Category::SurfaceVessel;
+		case SubCategory::AttackSubmarine:
+		case SubCategory::BallisticMissileSubmarine:
+		case SubCategory::CruiseMissileSubmarine:
+			return Category::Submarine;
+		case SubCategory::HeavyweightTorpedo:
+		case SubCategory::LightweightTorpedo:
+			return Category::Torpedo;
+		case SubCategory::NavalMine:
+			return Category::Mine;
+		case SubCategory::Noisemaker:
+		case SubCategory::SelfPropelledAcousticDecoy:
+			return Category::SubsurfaceDevice;
+		case SubCategory::Sonobuoy:
+			return Category::SurfaceDevice;
+		case SubCategory::GroundVehicle:
+		case SubCategory::SurfaceToAirMissileLauncher:
+		case SubCategory::AntiAircraftGun:
+		case SubCategory::Radar:
+			return Category::LandEquipment;
+		case SubCategory::Airfield:
+		case SubCategory::MilitaryInstallation:
+		case SubCategory::CivilianInstallation:
+			return Category::LandInstallation;
+		}
+
+		// Callers must provide a declared enum value; reject invalid wire codes at the boundary.
+		std::unreachable();
+	}
 }

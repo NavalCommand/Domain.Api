@@ -18,6 +18,7 @@ namespace NavalCommand::Classification::Api
 		ElectronicWarfare,
 		Transport,
 		AerialRefuelling,
-		Surveillance
+		Surveillance,
+		Decoy
 	};
 }

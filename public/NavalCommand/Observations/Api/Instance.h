@@ -33,7 +33,7 @@ namespace NavalCommand::Observations::Api
 			Classification::Api::Category,
 			Classification::Api::Dimension> Type;
 
-		// Unknown, known absent, or known selected loadout.
+		// Unknown or known selected loadout (including an empty configuration).
 		// Never infer this from hidden authoritative state.
 		Uncertainty::Api::Exact<Equipment::Api::LoadoutId> CurrentLoadout;
 

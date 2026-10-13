@@ -1,22 +1,24 @@
-#include <NavalCommand/Classification/Api/Taxonomy.h>
+#include <NavalCommand/Classification/Api/SubCategory.h>
 #include <NavalCommand/Units/Api/Type.h>
 #include <gtest/gtest.h>
+#include <type_traits>
 #include <vector>
 
 namespace Classification = NavalCommand::Classification::Api;
 namespace Equipment = NavalCommand::Equipment::Api;
 namespace Units = NavalCommand::Units::Api;
 
-TEST(UnitTypeTest, DerivesDesignedRolesFromLoadouts)
+static_assert(std::is_same_v<decltype(Units::Type::UnitSubCategory), Classification::SubCategory>);
+
+TEST(UnitTypeTest, DerivesCategoryDimensionAndRolesFromLoadouts)
 {
 	Units::Type type;
 	type.Id = {"destroyer"};
-	type.UnitCategory = Classification::Category::SurfaceVessel;
 	type.UnitSubCategory = Classification::SubCategory::Destroyer;
 
 	Equipment::Loadout standard;
 	standard.Id = {"standard"};
-	standard.Roles = std::vector<Classification::Role>{
+	standard.Roles = {
 		Classification::Role::AirDefence,
 		Classification::Role::AntiSubmarineWarfare
 	};
@@ -24,41 +26,40 @@ TEST(UnitTypeTest, DerivesDesignedRolesFromLoadouts)
 
 	Equipment::Loadout alternative;
 	alternative.Id = {"alternative"};
-	alternative.Roles = std::vector<Classification::Role>{
+	alternative.Roles = {
 		Classification::Role::AirDefence,
 		Classification::Role::SurfaceWarfare
 	};
 	type.Loadouts.push_back(alternative);
 
 	EXPECT_EQ(type.Id.Value, "destroyer");
-	ASSERT_TRUE(type.UnitSubCategory.has_value());
-	EXPECT_TRUE(Classification::IsConsistent(*type.UnitCategory, *type.UnitSubCategory));
-	EXPECT_EQ(Classification::GetDimension(*type.UnitCategory), Classification::Dimension::SeaSurface);
+	EXPECT_EQ(Classification::GetCategory(type.UnitSubCategory), Classification::Category::SurfaceVessel);
+	EXPECT_EQ(Classification::GetDimension(Classification::GetCategory(type.UnitSubCategory)), Classification::Dimension::SeaSurface);
 	ASSERT_EQ(type.Loadouts.size(), 2);
 
 	const auto roles = Units::GetRoles(type);
-	ASSERT_TRUE(roles.has_value());
-	ASSERT_EQ(roles->size(), 3);
-	EXPECT_EQ((*roles)[0], Classification::Role::AirDefence);
-	EXPECT_EQ((*roles)[1], Classification::Role::AntiSubmarineWarfare);
-	EXPECT_EQ((*roles)[2], Classification::Role::SurfaceWarfare);
+	ASSERT_EQ(roles.size(), 3);
+	EXPECT_EQ(roles[0], Classification::Role::AirDefence);
+	EXPECT_EQ(roles[1], Classification::Role::AntiSubmarineWarfare);
+	EXPECT_EQ(roles[2], Classification::Role::SurfaceWarfare);
 }
 
-TEST(UnitTypeTest, DoesNotTreatMissingRoleDataAsEmpty)
+TEST(UnitTypeTest, EmptyLoadoutsAndUnspecifiedRolesProduceEmptyResults)
 {
 	Units::Type type;
-	EXPECT_FALSE(type.UnitCategory.has_value());
-	EXPECT_FALSE(type.UnitSubCategory.has_value());
-	EXPECT_FALSE(Units::GetRoles(type).has_value());
+	type.UnitSubCategory = Classification::SubCategory::FixedWingAircraft;
+	EXPECT_TRUE(Units::GetRoles(type).empty());
 
 	type.Loadouts.push_back({});
-	EXPECT_FALSE(Units::GetRoles(type).has_value());
+	EXPECT_TRUE(Units::GetRoles(type).empty());
 
-	type.Loadouts.front().Roles.emplace();
-	const auto roles = Units::GetRoles(type);
-	ASSERT_TRUE(roles.has_value());
-	EXPECT_TRUE(roles->empty());
+	type.Loadouts.front().Roles.push_back(Classification::Role::Reconnaissance);
+	auto roles = Units::GetRoles(type);
+	ASSERT_EQ(roles.size(), 1);
+	EXPECT_EQ(roles.front(), Classification::Role::Reconnaissance);
 
 	type.Loadouts.push_back({});
-	EXPECT_FALSE(Units::GetRoles(type).has_value());
+	roles = Units::GetRoles(type);
+	ASSERT_EQ(roles.size(), 1);
+	EXPECT_EQ(roles.front(), Classification::Role::Reconnaissance);
 }
