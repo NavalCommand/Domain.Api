@@ -1,4 +1,6 @@
 #pragma once
+
+#include <NavalCommand/Factions/Api/Id.h>
 #include <NavalCommand/Observations/Api/Aircraft.h>
 #include <NavalCommand/Observations/Api/Contributor.h>
 #include <NavalCommand/Observations/Api/Id.h>
@@ -10,8 +12,7 @@
 #include <optional>
 #include <string>
 #include <vector>
-#include <NavalCommand/Factions/Api/Id.h>
-#include <NavalCommand/Units/Api/Classification.h>
+#include <NavalCommand/Classification/Api/Category.h>
 
 namespace NavalCommand::Observations::Api
 {
@@ -21,7 +22,7 @@ namespace NavalCommand::Observations::Api
 		std::string ObservationName; // Observer-facing name. Can be a track name or real unit name
 		Factions::Api::Id ObserverFaction;
 		Uncertainty::Api::Exact<Factions::Api::Id> ObservedFaction;
-		Uncertainty::Api::Resolution<Units::Api::TypeId, Units::Api::Classification> Type;
+		Uncertainty::Api::Resolution<Units::Api::TypeId, Classification::Api::Category> Type;
 		Kinematics Kinematics;
 		std::optional<Aircraft> Aircraft;
 

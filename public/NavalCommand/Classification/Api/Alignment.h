@@ -1,6 +1,6 @@
 #pragma once
 
-namespace NavalCommand::Factions::Api
+namespace NavalCommand::Classification::Api
 {
 	enum class Alignment
 	{
