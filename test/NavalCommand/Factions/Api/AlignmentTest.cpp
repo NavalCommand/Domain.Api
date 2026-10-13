@@ -1,8 +1,11 @@
-#include <NavalCommand/Factions/Api/Alignment.h>
+#include <NavalCommand/Classification/Api/Alignment.h>
+#include <NavalCommand/Classification/Api/AssumedAlignment.h>
 #include <gtest/gtest.h>
 
-TEST(AlignmentTest, IncludesFriendly)
+namespace Classification = NavalCommand::Classification::Api;
+
+TEST(AlignmentTest, IncludesDistinctActualAndAssumedAffiliations)
 {
-	EXPECT_NE(NavalCommand::Factions::Api::Alignment::Friendly,
-		NavalCommand::Factions::Api::Alignment::Hostile);
+	EXPECT_NE(Classification::Alignment::Friendly, Classification::Alignment::Hostile);
+	EXPECT_NE(Classification::AssumedAlignment::Friendly, Classification::AssumedAlignment::Hostile);
 }

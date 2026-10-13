@@ -11,6 +11,7 @@ target_link_libraries(NavalCommand.Domain.Api.Test PRIVATE
         NavalCommand.Physics.Api
         NavalCommand.Uncertainty.Api
         NavalCommand.Error.Api
+        NavalCommand.Classification.Api
         NavalCommand.Resources.Api
         NavalCommand.Equipment.Api
         NavalCommand.Factions.Api

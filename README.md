@@ -9,11 +9,12 @@ Simulator- and gateway-independent C++23 value contracts. Public headers are org
 | `NavalCommand.Physics.Api` | Physical quantities and positions | None |
 | `NavalCommand.Uncertainty.Api` | Values for known or unknown facts and resolutions | None |
 | `NavalCommand.Error.Api` | Shared error and result contracts | None |
+| `NavalCommand.Classification.Api` | Affiliation, taxonomy hierarchy, and designed-role vocabulary | None |
 | `NavalCommand.Resources.Api` | Resource identifiers, definitions, and values | `NavalCommand.Error.Api` |
 | `NavalCommand.Equipment.Api` | Equipment instances, loadouts, effects, damage, and providers | `NavalCommand.Error.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Resources.Api` |
-| `NavalCommand.Factions.Api` | Faction identity, alignment, and provider contracts | `NavalCommand.Error.Api` |
-| `NavalCommand.Units.Api` | Authoritative unit identity, type, faction, kinematics, equipment, and optional aircraft state | `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Factions.Api`, `NavalCommand.Physics.Api` |
-| `NavalCommand.Observations.Api` | Observer-specific contact identity and uncertain observations | `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Factions.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Units.Api`, `NavalCommand.Uncertainty.Api` |
+| `NavalCommand.Factions.Api` | Faction identity, alignment, and provider contracts | `NavalCommand.Classification.Api`, `NavalCommand.Error.Api` |
+| `NavalCommand.Units.Api` | Authoritative unit identity, type, faction, kinematics, equipment, and optional aircraft state | `NavalCommand.Classification.Api`, `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Factions.Api`, `NavalCommand.Physics.Api` |
+| `NavalCommand.Observations.Api` | Observer-specific contact identity and uncertain observations | `NavalCommand.Classification.Api`, `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Factions.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Units.Api`, `NavalCommand.Uncertainty.Api` |
 | `NavalCommand.Operations.Api` | Current unit activity, navigation, air operations, and read-only unit-state access | `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Observations.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Units.Api`, `NavalCommand.Uncertainty.Api` |
 | `NavalCommand.Orders.Api` | Submitted command payloads and execution state | `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Units.Api` |
 | `NavalCommand.Environment.Api` | Terrain, weather, and time provider contracts | `NavalCommand.Error.Api`, `NavalCommand.Physics.Api` |
@@ -27,11 +28,17 @@ The domain direction is acyclic. In particular, `NavalCommand.Observations.Api` 
 
 `Units::Api::Instance` contains authoritative identity, name, type, faction, kinematics, equipment, and an optional aircraft instance. It does not contain activity, navigation, or air-operations state, and it does not depend on observer-specific identifiers or uncertainty types.
 
-`Observations::Api::Id` identifies an observer-side contact and is distinct from `Units::Api::Id`, which identifies an authoritative unit. An observation may be unknown, ambiguous, or uncorrelated with a known true unit. Observation values use the uncertainty contracts where information is not fully known.
+`Observations::Api::Id` identifies an observer-side contact and is distinct from `Units::Api::Id`, which identifies an authoritative unit. An observation may be unknown, ambiguous, or uncorrelated with a known true unit. Observation values use the uncertainty contracts where information is not fully known. `Observations::Api::Instance::Type` resolves one observer-supported classification level: exact `Units::Api::TypeId`, `Classification::Api::SubCategory`, `Classification::Api::Category`, `Classification::Api::Dimension`, or unknown. A more precise variant must never be inferred from hidden native truth.
 
 `Operations::Api::UnitState` is a separate projection of current operational behavior. It contains an `Activity` value and optional navigation and air-operations values. The `std::monostate` activity means unknown or unreported activity, distinct from `Idle`; absent navigation or air-operations data is left absent. An activity that refers to an observed contact uses `Observations::Api::Id`, including engagement targets and evasive-maneuver danger sources. `Operations::Api::IProvider` accepts a true `Units::Api::Id` for the friendly unit whose state is requested; its implementation is scoped to the controlling faction.
 
 `NavalCommand.Orders.Api` remains separate from `NavalCommand.Operations.Api`: an order records requested behavior, while operations report current behavior. `Orders::Api::ExecutionRequest::Executor` remains a `Units::Api::Id` because it identifies the friendly unit executing the request. The order model does not use the operations projection.
+
+## Classification semantics
+
+`Units::Api::Type` carries optional `UnitCategory`, optional `UnitSubCategory`, and optional `DesignedRoles`. Unknown metadata must stay absent rather than defaulting to a false value; a known empty roles vector is different from unavailable role metadata. `Classification::Api::GetCategory(SubCategory)` and `GetDimension(Category)` establish the hierarchy, and `IsConsistent` checks category/subcategory pairs. The more specific category is optional because the current Sea Power client does not yet publish the unit-type catalogue. Designed roles describe platform purpose, not current orders, weapons fitted, or target eligibility. Missile flight class (for example, cruise/ballistic) must not be confused with intended target (air/surface/land); the latter belongs to sourced role and equipment/weapon properties.
+
+The classification vocabulary is a small simulator-independent semantic taxonomy, *not* a complete APP-6 symbol catalogue. A future symbology adapter maps these types and additional operation/modifier information to official NATO symbols. `ObservedTaxonomy` was removed in favor of the single `Resolution` in `Observations::Api::Instance`.
 
 ## Build and testing
 

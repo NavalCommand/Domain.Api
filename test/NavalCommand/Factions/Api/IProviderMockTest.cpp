@@ -1,7 +1,9 @@
+#include <NavalCommand/Classification/Api/Alignment.h>
 #include <NavalCommand/Factions/Api/IProviderMock.h>
 #include <gmock/gmock.h>
 #include <type_traits>
 
+namespace Classification = NavalCommand::Classification::Api;
 namespace Factions = NavalCommand::Factions::Api;
 namespace ErrorApi = NavalCommand::Error::Api;
 
@@ -16,10 +18,10 @@ TEST(FactionsIProviderMockTest, ExpectsFactionQueries)
 		.WillOnce(testing::Return(ErrorApi::Result<std::vector<Factions::Id>>{
 			std::vector<Factions::Id>{{"blue"}}}));
 	EXPECT_CALL(mock, GetFactionAlignment(testing::_, testing::_))
-		.WillOnce(testing::Return(ErrorApi::DomainResult<Factions::Alignment, Factions::Error>{
-			Factions::Alignment::Friendly}));
+		.WillOnce(testing::Return(ErrorApi::DomainResult<Classification::Alignment, Factions::Error>{
+			Classification::Alignment::Friendly}));
 
 	EXPECT_EQ(mock.GetFactionIds()->front().Value, "blue");
 	EXPECT_EQ(*mock.GetFactionAlignment(Factions::Id{"blue"}, Factions::Id{"blue"}),
-		Factions::Alignment::Friendly);
+		Classification::Alignment::Friendly);
 }
