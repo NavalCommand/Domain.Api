@@ -3,6 +3,7 @@
 #include <NavalCommand/Classification/Api/Category.h>
 #include <NavalCommand/Classification/Api/Dimension.h>
 #include <NavalCommand/Classification/Api/SubCategory.h>
+#include <NavalCommand/Equipment/Api/LoadoutId.h>
 #include <NavalCommand/Factions/Api/Id.h>
 #include <NavalCommand/Observations/Api/Aircraft.h>
 #include <NavalCommand/Observations/Api/Contributor.h>
@@ -31,6 +32,10 @@ namespace NavalCommand::Observations::Api
 			Classification::Api::SubCategory,
 			Classification::Api::Category,
 			Classification::Api::Dimension> Type;
+
+		// Unknown, known absent, or known selected loadout.
+		// Never infer this from hidden authoritative state.
+		Uncertainty::Api::Exact<std::optional<Equipment::Api::LoadoutId>> CurrentLoadout;
 
 		Kinematics Kinematics;
 		std::optional<Aircraft> Aircraft;

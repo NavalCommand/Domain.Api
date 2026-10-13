@@ -5,6 +5,7 @@
 #include <NavalCommand/Classification/Api/SubCategory.h>
 #include <NavalCommand/Equipment/Api/Loadout.h>
 #include <NavalCommand/Units/Api/TypeId.h>
+#include <algorithm>
 #include <optional>
 #include <vector>
 
@@ -19,10 +20,35 @@ namespace NavalCommand::Units::Api
 		std::optional<Classification::Api::Category> UnitCategory;
 		std::optional<Classification::Api::SubCategory> UnitSubCategory;
 
-		// Designed platform roles, not the current mission or equipped capabilities.
-		// nullopt = unavailable; an empty vector = positively known to have no roles.
-		std::optional<std::vector<Classification::Api::Role>> DesignedRoles;
-
 		std::vector<Equipment::Api::Loadout> Loadouts;
 	};
+
+	// Deduplicated union of configured roles, or nullopt if any role data
+	// is unavailable. Examine individual loadouts for partial knowledge.
+	inline std::optional<std::vector<Classification::Api::Role>> GetRoles(const Type& type)
+	{
+		if (type.Loadouts.empty())
+		{
+			return std::nullopt;
+		}
+
+		std::vector<Classification::Api::Role> roles;
+		for (const auto& loadout : type.Loadouts)
+		{
+			if (!loadout.Roles.has_value())
+			{
+				return std::nullopt;
+			}
+
+			for (const auto role : *loadout.Roles)
+			{
+				if (std::find(roles.begin(), roles.end(), role) == roles.end())
+				{
+					roles.push_back(role);
+				}
+			}
+		}
+
+		return roles;
+	}
 }
