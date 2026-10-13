@@ -13,8 +13,8 @@ namespace NavalCommand::Factions::Api
 	public:
 		virtual ~IProvider() = default;
 
-		virtual Error::Api::Result<std::vector<Id>> GetFactionIds() = 0;
-		virtual Error::Api::DomainResult<Classification::Api::Alignment, Error> GetFactionAlignment(
+		virtual NavalCommand::Error::Api::Result<std::vector<Id>> GetFactionIds() = 0;
+		virtual NavalCommand::Error::Api::DomainResult<Classification::Api::Alignment, Error> GetFactionAlignment(
 			const Id& faction1, const Id& faction2) = 0;
 	};
 }

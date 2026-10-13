@@ -14,7 +14,6 @@ namespace NavalCommand::Equipment::Api
 		std::vector<Fit> Equipment;
 
 		// Roles supported by this configuration, not its current orders.
-		// nullopt = unreported; an empty vector = known to have no roles.
-		std::optional<std::vector<Classification::Api::Role>> Roles;
+		std::vector<Classification::Api::Role> Roles;
 	};
 }
