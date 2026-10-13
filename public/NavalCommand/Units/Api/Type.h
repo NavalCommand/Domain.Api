@@ -16,26 +16,34 @@ namespace NavalCommand::Units::Api
 		// The sole authoritative classification; category and dimension are derived.
 		Classification::Api::SubCategory UnitSubCategory;
 
+		// Intrinsic platform roles that apply independently of the selected loadout.
+		std::vector<Classification::Api::Role> PlatformRoles;
+
 		std::vector<Equipment::Api::Loadout> Loadouts;
 	};
 
-	// Deduplicated union of configured roles. Examine individual loadouts for partial knowledge.
+	// Deduplicated union: platform roles first, then roles by loadout declaration order.
 	inline std::vector<Classification::Api::Role> GetRoles(const Type& type)
 	{
-		if (type.Loadouts.empty())
+		std::vector<Classification::Api::Role> roles;
+		const auto addUniqueRole = [&roles](Classification::Api::Role role)
 		{
-			return {};
+			if (std::find(roles.begin(), roles.end(), role) == roles.end())
+			{
+				roles.push_back(role);
+			}
+		};
+
+		for (const auto platformRole : type.PlatformRoles)
+		{
+			addUniqueRole(platformRole);
 		}
 
-		std::vector<Classification::Api::Role> roles;
 		for (const auto& loadout : type.Loadouts)
 		{
-			for (const auto role : loadout.Roles)
+			for (const auto loadoutRole : loadout.Roles)
 			{
-				if (std::find(roles.begin(), roles.end(), role) == roles.end())
-				{
-					roles.push_back(role);
-				}
+				addUniqueRole(loadoutRole);
 			}
 		}
 

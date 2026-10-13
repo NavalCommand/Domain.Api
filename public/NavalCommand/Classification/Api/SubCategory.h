@@ -51,7 +51,13 @@ namespace NavalCommand::Classification::Api
 		// Land installations
 		Airfield,
 		MilitaryInstallation,
-		CivilianInstallation
+		CivilianInstallation,
+
+		// Generic fallback subcategories; appended to preserve existing enum values.
+		Missile,
+		Torpedo,
+		SurfaceVessel,
+		Submarine
 	};
 
 	// Every declared subcategory belongs to exactly one category.
@@ -65,6 +71,7 @@ namespace NavalCommand::Classification::Api
 			return Category::Aircraft;
 		case SubCategory::CruiseMissile:
 		case SubCategory::BallisticMissile:
+		case SubCategory::Missile:
 			return Category::Missile;
 		case SubCategory::AircraftCarrier:
 		case SubCategory::Cruiser:
@@ -75,13 +82,16 @@ namespace NavalCommand::Classification::Api
 		case SubCategory::AmphibiousVessel:
 		case SubCategory::AuxiliaryVessel:
 		case SubCategory::MerchantVessel:
+		case SubCategory::SurfaceVessel:
 			return Category::SurfaceVessel;
 		case SubCategory::AttackSubmarine:
 		case SubCategory::BallisticMissileSubmarine:
 		case SubCategory::CruiseMissileSubmarine:
+		case SubCategory::Submarine:
 			return Category::Submarine;
 		case SubCategory::HeavyweightTorpedo:
 		case SubCategory::LightweightTorpedo:
+		case SubCategory::Torpedo:
 			return Category::Torpedo;
 		case SubCategory::NavalMine:
 			return Category::Mine;

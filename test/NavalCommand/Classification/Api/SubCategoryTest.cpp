@@ -13,8 +13,10 @@ TEST(SubCategoryTest, MapsEveryDeclaredSubCategoryToItsExpectedCategory)
 		{SubCategory::FixedWingAircraft, Category::Aircraft},
 		{SubCategory::RotaryWingAircraft, Category::Aircraft},
 		{SubCategory::TiltRotorAircraft, Category::Aircraft},
+		{SubCategory::Missile, Category::Missile},
 		{SubCategory::CruiseMissile, Category::Missile},
 		{SubCategory::BallisticMissile, Category::Missile},
+		{SubCategory::SurfaceVessel, Category::SurfaceVessel},
 		{SubCategory::AircraftCarrier, Category::SurfaceVessel},
 		{SubCategory::Cruiser, Category::SurfaceVessel},
 		{SubCategory::Destroyer, Category::SurfaceVessel},
@@ -27,6 +29,8 @@ TEST(SubCategoryTest, MapsEveryDeclaredSubCategoryToItsExpectedCategory)
 		{SubCategory::AttackSubmarine, Category::Submarine},
 		{SubCategory::BallisticMissileSubmarine, Category::Submarine},
 		{SubCategory::CruiseMissileSubmarine, Category::Submarine},
+		{SubCategory::Submarine, Category::Submarine},
+		{SubCategory::Torpedo, Category::Torpedo},
 		{SubCategory::HeavyweightTorpedo, Category::Torpedo},
 		{SubCategory::LightweightTorpedo, Category::Torpedo},
 		{SubCategory::NavalMine, Category::Mine},
@@ -54,3 +58,11 @@ static_assert(Classification::GetCategory(Classification::SubCategory::SelfPrope
 	== Classification::Category::SubsurfaceDevice);
 static_assert(Classification::GetCategory(Classification::SubCategory::Sonobuoy)
 	== Classification::Category::SurfaceDevice);
+static_assert(Classification::GetDimension(Classification::GetCategory(Classification::SubCategory::Missile))
+	== Classification::Dimension::Air);
+static_assert(Classification::GetDimension(Classification::GetCategory(Classification::SubCategory::Torpedo))
+	== Classification::Dimension::SeaSubsurface);
+static_assert(Classification::GetDimension(Classification::GetCategory(Classification::SubCategory::SurfaceVessel))
+	== Classification::Dimension::SeaSurface);
+static_assert(Classification::GetDimension(Classification::GetCategory(Classification::SubCategory::Submarine))
+	== Classification::Dimension::SeaSubsurface);

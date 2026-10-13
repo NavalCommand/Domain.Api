@@ -40,9 +40,13 @@ The domain direction is acyclic. In particular, `NavalCommand.Observations.Api` 
 
 An `Observations::Api::Instance::Type` is an independent observer-specific `Resolution<TypeId, SubCategory, Category, Dimension>`; it can report the less specific classification actually supported by the selected observer. Do not promote an observation using hidden native type data.
 
-Designed roles belong to `Equipment::Api::Loadout::Roles`, not separately to `Units::Api::Type`. Roles describe supported missions of a configuration, not active orders or readiness. Even a platform without configurable equipment should have a named standard/empty loadout in a complete type catalogue.
+The domain taxonomy includes generic fallback subcategories such as `Missile`, `Torpedo`, `SurfaceVessel`, and `Submarine`, alongside specialized values such as `CruiseMissile`, `HeavyweightTorpedo`, `Destroyer`, and `AttackSubmarine`. It may be more precise than Sea Power's native runtime types: native types without a reliable subtype distinction can use a generic fallback, while supported specialized classifications remain part of the domain vocabulary.
 
-`Units::Api::GetRoles(Type)` returns the deduplicated union of roles across all loadouts. An empty role vector means no roles are specified. `Units::Api::Instance::CurrentLoadout` is a loadout ID and must correspond to a loadout of the referenced type. The observer's `Exact<LoadoutId>` represents unknown or known selected configuration; merely identifying the type does not disclose which configuration is active.
+`Units::Api::Type::PlatformRoles` describes roles intrinsic to the platform, independently of its selected loadout. `Equipment::Api::Loadout::Roles` describes additional roles supported by that configuration. Both represent designed military purposes, not active missions, orders, or readiness. Configuration-dependent roles belong on the loadout, and platform roles always contribute to the complete role set. Even a platform without configurable equipment should have a named standard/empty loadout in a complete type catalogue.
+
+For a configuration, the effective roles are `PlatformRoles ∪ Loadout::Roles`. `Units::Api::GetRoles(Type)` returns the deduplicated union of `PlatformRoles` and every loadout's roles, describing all roles potentially supported by the type rather than a currently selected configuration. Ordering is deterministic: platform roles first, followed by roles in loadout declaration order, with each vector's order preserved. Empty role vectors mean no roles are specified.
+
+`Units::Api::Instance::CurrentLoadout` is a loadout ID and must correspond to a loadout of the referenced type. The observer's `Exact<LoadoutId>` represents unknown or known selected configuration; merely identifying the type does not disclose which configuration is active.
 
 Missile flight class (for example, cruise/ballistic) must not be confused with intended target (air/surface/land); the latter belongs to sourced roles and equipment/weapon properties. The classification vocabulary is simulator-independent, not a complete APP-6 symbol catalogue. A future symbology adapter maps this model to NATO symbols.
 
