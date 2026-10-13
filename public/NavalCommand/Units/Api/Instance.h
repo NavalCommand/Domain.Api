@@ -18,7 +18,7 @@ namespace NavalCommand::Units::Api
 		std::string Name;
 		TypeId Type;
 		// Selected loadout, if assigned/applicable.
-		std::optional<Equipment::Api::LoadoutId> CurrentLoadout;
+		Equipment::Api::LoadoutId CurrentLoadout;
 		Factions::Api::Id Faction;
 		Kinematics Kinematics;
 		std::vector<Equipment::Api::Instance> Equipment;
