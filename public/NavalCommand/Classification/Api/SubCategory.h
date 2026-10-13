@@ -34,6 +34,9 @@ namespace NavalCommand::Classification::Api
 		HeavyweightTorpedo,
 		LightweightTorpedo,
 		NavalMine,
+		Noisemaker,
+		SelfPropelledAcousticDecoy,
+		Sonobuoy,
 
 		// Land equipment
 		GroundVehicle,

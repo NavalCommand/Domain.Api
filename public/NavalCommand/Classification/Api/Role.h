@@ -17,6 +17,7 @@ namespace NavalCommand::Classification::Api
 		AirborneEarlyWarning,
 		ElectronicWarfare,
 		Transport,
-		AerialRefuelling
+		AerialRefuelling,
+		Surveillance
 	};
 }

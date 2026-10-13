@@ -14,6 +14,8 @@ namespace NavalCommand::Classification::Api
 		LandEquipment,
 		LandInstallation,
 		LandUnit,
-		SpaceObject
+		SpaceObject,
+		SurfaceDevice,
+		SubsurfaceDevice
 	};
 }
