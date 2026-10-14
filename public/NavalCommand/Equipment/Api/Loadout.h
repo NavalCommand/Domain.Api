@@ -10,6 +10,7 @@ namespace NavalCommand::Equipment::Api
 	struct Loadout
 	{
 		LoadoutId Id;
+		std::optional<std::string> DisplayName;
 		std::vector<Fit> Equipment;
 
 		// Roles supported by this configuration, not its current orders.
