@@ -18,7 +18,9 @@ namespace NavalCommand::Classification::Api
 		LandUnit,
 		SpaceObject,
 		SurfaceDevice,
-		SubsurfaceDevice
+		SubsurfaceDevice,
+		SeaAnimal,
+		Other
 	};
 
 	// Every declared category has exactly one operational dimension.
@@ -43,6 +45,10 @@ namespace NavalCommand::Classification::Api
 			return Dimension::Land;
 		case Category::SpaceObject:
 			return Dimension::Space;
+		case Category::SeaAnimal:
+			return Dimension::SeaSubsurface;
+		case Category::Other:
+			return Dimension::Other;
 		}
 
 		// Callers must provide a declared enum value; reject invalid wire codes at the boundary.

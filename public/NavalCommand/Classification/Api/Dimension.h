@@ -8,6 +8,7 @@ namespace NavalCommand::Classification::Api
 		Land,
 		SeaSurface,
 		SeaSubsurface,
-		Space
+		Space,
+		Other
 	};
 }

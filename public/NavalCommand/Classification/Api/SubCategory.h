@@ -57,7 +57,9 @@ namespace NavalCommand::Classification::Api
 		Missile,
 		Torpedo,
 		SurfaceVessel,
-		Submarine
+		Submarine,
+		Whale,
+		Other
 	};
 
 	// Every declared subcategory belongs to exactly one category.
@@ -109,6 +111,10 @@ namespace NavalCommand::Classification::Api
 		case SubCategory::MilitaryInstallation:
 		case SubCategory::CivilianInstallation:
 			return Category::LandInstallation;
+		case SubCategory::Whale:
+			return Category::SeaAnimal;
+		case SubCategory::Other:
+			return Category::Other;
 		}
 
 		// Callers must provide a declared enum value; reject invalid wire codes at the boundary.

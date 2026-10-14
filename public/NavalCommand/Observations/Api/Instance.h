@@ -36,6 +36,7 @@ namespace NavalCommand::Observations::Api
 		// Unknown or known selected loadout (including an empty configuration).
 		// Never infer this from hidden authoritative state.
 		Uncertainty::Api::Exact<Equipment::Api::LoadoutId> CurrentLoadout;
+		Uncertainty::Api::Exact<bool> IsDestroyed;
 
 		Kinematics Kinematics;
 		std::optional<Aircraft> Aircraft;

@@ -30,6 +30,7 @@ static_assert(std::is_same_v<decltype(Observations::Instance::Identity), Observa
 static_assert(std::is_same_v<decltype(Observations::Instance::Type), ObservedType>);
 static_assert(std::is_same_v<decltype(Observations::Instance::CurrentLoadout),
 	Uncertainty::Exact<Equipment::LoadoutId>>);
+static_assert(std::is_same_v<decltype(Observations::Instance::IsDestroyed), Uncertainty::Exact<bool>>);
 static_assert(std::variant_size_v<ObservedType::Variant> == 5);
 
 TEST(ObservationInstanceTest, RetainsUncertaintyAndSourceAttribution)
@@ -92,4 +93,13 @@ TEST(ObservationInstanceTest, DistinguishesUnknownAndSelectedLoadouts)
 
 	contact.CurrentLoadout = ObservedLoadout::Unknown();
 	EXPECT_FALSE(contact.CurrentLoadout.IsKnown());
+
+	EXPECT_FALSE(contact.IsDestroyed.IsKnown());
+	contact.IsDestroyed = Uncertainty::Exact<bool>::Known(false);
+	ASSERT_TRUE(contact.IsDestroyed.IsKnown());
+	EXPECT_FALSE(contact.IsDestroyed.Value());
+
+	contact.IsDestroyed = Uncertainty::Exact<bool>::Known(true);
+	ASSERT_TRUE(contact.IsDestroyed.IsKnown());
+	EXPECT_TRUE(contact.IsDestroyed.Value());
 }

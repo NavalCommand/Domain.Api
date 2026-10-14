@@ -43,7 +43,9 @@ TEST(SubCategoryTest, MapsEveryDeclaredSubCategoryToItsExpectedCategory)
 		{SubCategory::Radar, Category::LandEquipment},
 		{SubCategory::Airfield, Category::LandInstallation},
 		{SubCategory::MilitaryInstallation, Category::LandInstallation},
-		{SubCategory::CivilianInstallation, Category::LandInstallation}
+		{SubCategory::CivilianInstallation, Category::LandInstallation},
+		{SubCategory::Whale, Category::SeaAnimal},
+		{SubCategory::Other, Category::Other}
 	};
 
 	for (const auto& [subCategory, expectedCategory] : mappings)
@@ -66,3 +68,7 @@ static_assert(Classification::GetDimension(Classification::GetCategory(Classific
 	== Classification::Dimension::SeaSurface);
 static_assert(Classification::GetDimension(Classification::GetCategory(Classification::SubCategory::Submarine))
 	== Classification::Dimension::SeaSubsurface);
+static_assert(Classification::GetDimension(Classification::GetCategory(Classification::SubCategory::Whale))
+	== Classification::Dimension::SeaSubsurface);
+static_assert(Classification::GetDimension(Classification::GetCategory(Classification::SubCategory::Other))
+	== Classification::Dimension::Other);

@@ -21,7 +21,9 @@ TEST(CategoryTest, MapsEveryDeclaredCategoryToItsExpectedDimension)
 		{Category::LandUnit, Dimension::Land},
 		{Category::SpaceObject, Dimension::Space},
 		{Category::SurfaceDevice, Dimension::SeaSurface},
-		{Category::SubsurfaceDevice, Dimension::SeaSubsurface}
+		{Category::SubsurfaceDevice, Dimension::SeaSubsurface},
+		{Category::SeaAnimal, Dimension::SeaSubsurface},
+		{Category::Other, Dimension::Other}
 	};
 
 	for (const auto& [category, expectedDimension] : mappings)

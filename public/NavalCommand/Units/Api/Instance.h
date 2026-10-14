@@ -19,6 +19,7 @@ namespace NavalCommand::Units::Api
 		TypeId Type;
 		// Selected configuration; even an empty configuration has a LoadoutId.
 		Equipment::Api::LoadoutId CurrentLoadout;
+		bool IsDestroyed;
 		Factions::Api::Id Faction;
 		Kinematics Kinematics;
 		std::vector<Equipment::Api::Instance> Equipment;
