@@ -13,6 +13,8 @@ namespace NavalCommand::Units::Api
 	{
 		TypeId Id;
 
+		std::optional<std::string> DisplayName;
+
 		// The sole authoritative classification; category and dimension are derived.
 		Classification::Api::SubCategory UnitSubCategory;
 
