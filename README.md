@@ -51,6 +51,9 @@ It is independent of subcategory, the current loadout and active missions. Absen
 means unspecified; consumers must not choose the first role or a hard-coded
 priority from the full capability list. The gateway validates membership and enum
 values. Primary role does not change `GetRoles` union semantics.
+`Role::GuidedMissile` denotes a platform's guided-missile warfare capability,
+independently of its physical class. A guided missile cruiser remains a Cruiser
+subcategory; its primary role can be GuidedMissile.
 
 For a configuration, the effective roles are `PlatformRoles ∪ Loadout::Roles`. `Units::Api::GetRoles(Type)` returns the deduplicated union of `PlatformRoles` and every loadout's roles, describing all roles potentially supported by the type rather than a currently selected configuration. Ordering is deterministic: platform roles first, followed by roles in loadout declaration order, with each vector's order preserved. Empty role vectors mean no roles are specified.
 

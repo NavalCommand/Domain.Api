@@ -19,6 +19,7 @@ namespace NavalCommand::Classification::Api
 		Transport,
 		AerialRefuelling,
 		Surveillance,
-		Decoy
+		Decoy,
+		GuidedMissile
 	};
 }
