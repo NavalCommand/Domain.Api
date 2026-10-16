@@ -5,6 +5,7 @@
 #include <NavalCommand/Equipment/Api/Loadout.h>
 #include <NavalCommand/Units/Api/TypeId.h>
 #include <algorithm>
+#include <optional>
 #include <vector>
 
 namespace NavalCommand::Units::Api
@@ -19,7 +20,12 @@ namespace NavalCommand::Units::Api
 		// The sole authoritative classification; category and dimension are derived.
 		Classification::Api::SubCategory UnitSubCategory;
 
+		// Principal intrinsic mission, independent of loadout. When absent, consumers
+		// must not choose a primary mission from PlatformRoles declaration order.
+		std::optional<Classification::Api::Role> PrimaryPlatformRole;
+
 		// Intrinsic platform roles that apply independently of the selected loadout.
+		// Contains PrimaryPlatformRole when it is specified.
 		std::vector<Classification::Api::Role> PlatformRoles;
 
 		std::vector<Equipment::Api::Loadout> Loadouts;
@@ -52,4 +58,4 @@ namespace NavalCommand::Units::Api
 
 		return roles;
 	}
-}
+} // namespace NavalCommand::Units::Api

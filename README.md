@@ -44,6 +44,14 @@ The domain taxonomy includes generic fallback subcategories such as `Missile`, `
 
 `Units::Api::Type::PlatformRoles` describes roles intrinsic to the platform, independently of its selected loadout. `Equipment::Api::Loadout::Roles` describes additional roles supported by that configuration. Both represent designed military purposes, not active missions, orders, or readiness. Configuration-dependent roles belong on the loadout, and platform roles always contribute to the complete role set. Even a platform without configurable equipment should have a named standard/empty loadout in a complete type catalogue.
 
+`Units::Api::Type::PrimaryPlatformRole` is an optional, explicit intrinsic mission
+used to choose a presentation specialization. It uses the same engine-independent
+`Classification::Api::Role` enum and, when present, must also occur in `PlatformRoles`.
+It is independent of subcategory, the current loadout and active missions. Absence
+means unspecified; consumers must not choose the first role or a hard-coded
+priority from the full capability list. The gateway validates membership and enum
+values. Primary role does not change `GetRoles` union semantics.
+
 For a configuration, the effective roles are `PlatformRoles ∪ Loadout::Roles`. `Units::Api::GetRoles(Type)` returns the deduplicated union of `PlatformRoles` and every loadout's roles, describing all roles potentially supported by the type rather than a currently selected configuration. Ordering is deterministic: platform roles first, followed by roles in loadout declaration order, with each vector's order preserved. Empty role vectors mean no roles are specified.
 
 `Units::Api::Instance::CurrentLoadout` is a loadout ID and must correspond to a loadout of the referenced type. The observer's `Exact<LoadoutId>` represents unknown or known selected configuration; merely identifying the type does not disclose which configuration is active.

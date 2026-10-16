@@ -12,6 +12,17 @@ static_assert(std::is_same_v<decltype(Units::Type::UnitSubCategory), Classificat
 static_assert(std::is_same_v<decltype(Units::Type::PlatformRoles), std::vector<Classification::Role>>);
 static_assert(std::is_same_v<decltype(Equipment::Loadout::Roles), std::vector<Classification::Role>>);
 
+TEST(UnitTypeTest, PrimaryRoleIsExplicitAndIndependentOfCapabilityOrder)
+{
+	Units::Type type{};
+	EXPECT_FALSE(type.PrimaryPlatformRole);
+	type.PlatformRoles = {Classification::Role::Surveillance, Classification::Role::AirborneEarlyWarning};
+	EXPECT_FALSE(type.PrimaryPlatformRole);
+	type.PrimaryPlatformRole = Classification::Role::AirborneEarlyWarning;
+	EXPECT_EQ(type.PrimaryPlatformRole, Classification::Role::AirborneEarlyWarning);
+	EXPECT_EQ(Units::GetRoles(type), type.PlatformRoles);
+}
+
 TEST(UnitTypeTest, DerivesCategoryAndDimensionFromItsSubCategory)
 {
 	Units::Type type;
