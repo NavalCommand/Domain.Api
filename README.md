@@ -34,6 +34,21 @@ The domain direction is acyclic. In particular, `NavalCommand.Observations.Api` 
 
 `NavalCommand.Orders.Api` remains separate from `NavalCommand.Operations.Api`: an order records requested behavior, while operations report current behavior. `Orders::Api::ExecutionRequest::Executor` remains a `Units::Api::Id` because it identifies the friendly unit executing the request. The order model does not use the operations projection.
 
+## Kinematic semantics
+
+`Units::Api::Kinematics::Heading` is authoritative platform/body orientation;
+`CourseOverGround` is ground movement direction. Both are clockwise from geodetic
+north and can differ during drift or maneuvering.
+
+`Observations::Api::Kinematics::Heading` is the source's reported track heading.
+It does not guarantee knowledge of the target's bow/nose orientation. A source
+may derive this report from track motion. Observation `CourseOverGround` reports
+movement direction; it may share the heading's source. Consumers, including AI
+controllers, must not treat the two populated fields as independent measurements
+or use their agreement as proof of physical orientation. `Exact::Known` expresses
+availability of the reported value without claiming independent verification of
+orientation. Unknown remains distinct from a reported zero.
+
 ## Classification semantics
 
 `Units::Api::Type` stores exactly one authoritative `UnitSubCategory`. The constexpr `Classification::Api::GetCategory(SubCategory)` function is declared in `SubCategory.h`, and `GetDimension(Category)` in `Category.h`. Together, these derive the complete classification hierarchy without redundant unit-type fields. These functions require declared enum values; adapters must validate untrusted numeric codes before casting.
