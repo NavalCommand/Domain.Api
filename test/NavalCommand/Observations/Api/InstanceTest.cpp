@@ -1,14 +1,18 @@
-#include <NavalCommand/Observations/Api/Instance.h>
+#include <NavalCommand/Classification/Api/Category.h>
+#include <NavalCommand/Classification/Api/Dimension.h>
+#include <NavalCommand/Classification/Api/SubCategory.h>
+#include <NavalCommand/Equipment/Api/LoadoutId.h>
 #include <NavalCommand/Equipment/Api/TypeId.h>
 #include <NavalCommand/Factions/Api/Id.h>
+#include <NavalCommand/Observations/Api/Instance.h>
 #include <NavalCommand/Physics/Api/Position.h>
-#include <NavalCommand/Units/Api/Classification.h>
 #include <NavalCommand/Units/Api/Id.h>
 #include <NavalCommand/Units/Api/TypeId.h>
 #include <gtest/gtest.h>
 #include <type_traits>
 #include <variant>
 
+namespace Classification = NavalCommand::Classification::Api;
 namespace Equipment = NavalCommand::Equipment::Api;
 namespace Factions = NavalCommand::Factions::Api;
 namespace Observations = NavalCommand::Observations::Api;
@@ -16,9 +20,18 @@ namespace Physics = NavalCommand::Physics::Api;
 namespace Uncertainty = NavalCommand::Uncertainty::Api;
 namespace Units = NavalCommand::Units::Api;
 
+using ObservedType = Uncertainty::Resolution<
+	Units::TypeId,
+	Classification::SubCategory,
+	Classification::Category,
+	Classification::Dimension>;
+
 static_assert(std::is_same_v<decltype(Observations::Instance::Identity), Observations::Id>);
-static_assert(std::is_same_v<decltype(Observations::Instance::Type),
-	Uncertainty::Resolution<Units::TypeId, Units::Classification>>);
+static_assert(std::is_same_v<decltype(Observations::Instance::Type), ObservedType>);
+static_assert(std::is_same_v<decltype(Observations::Instance::CurrentLoadout),
+	Uncertainty::Exact<Equipment::LoadoutId>>);
+static_assert(std::is_same_v<decltype(Observations::Instance::IsDestroyed), Uncertainty::Exact<bool>>);
+static_assert(std::variant_size_v<ObservedType::Variant> == 5);
 
 TEST(ObservationInstanceTest, RetainsUncertaintyAndSourceAttribution)
 {
@@ -27,8 +40,7 @@ TEST(ObservationInstanceTest, RetainsUncertaintyAndSourceAttribution)
 	contact.ObservationName = "track 9";
 	contact.ObserverFaction = Factions::Id{"blue"};
 	contact.ObservedFaction = Uncertainty::Exact<Factions::Id>::Unknown();
-	contact.Type = Uncertainty::Resolution<Units::TypeId, Units::Classification>::
-		Known<Units::TypeId>({"possible-aircraft"});
+	contact.Type = ObservedType::Known<Units::TypeId>({"possible-aircraft"});
 	contact.Kinematics.Position = Physics::Position{{61.9}, {-10.3}, {0}};
 	contact.Aircraft.emplace();
 	contact.Aircraft->Airborne = Uncertainty::Exact<bool>::Known(false);
@@ -43,4 +55,51 @@ TEST(ObservationInstanceTest, RetainsUncertaintyAndSourceAttribution)
 	EXPECT_FALSE(contact.Aircraft->Airborne.Value());
 	EXPECT_DOUBLE_EQ(std::get<Physics::Position>(contact.Kinematics.Position).Latitude.Value, 61.9);
 	ASSERT_EQ(contact.Contributors.size(), 1);
+}
+
+TEST(ObservationInstanceTest, SupportsEveryIdentificationResolution)
+{
+	ObservedType type;
+	EXPECT_TRUE(type.IsUnknown());
+
+	type = ObservedType::Known<Classification::Dimension>(Classification::Dimension::Air);
+	EXPECT_EQ(*type.GetIf<Classification::Dimension>(), Classification::Dimension::Air);
+
+	type = ObservedType::Known<Classification::Category>(Classification::Category::Aircraft);
+	EXPECT_EQ(*type.GetIf<Classification::Category>(), Classification::Category::Aircraft);
+	EXPECT_EQ(type.GetIf<Classification::Dimension>(), nullptr);
+
+	type = ObservedType::Known<Classification::SubCategory>(Classification::SubCategory::FixedWingAircraft);
+	EXPECT_EQ(*type.GetIf<Classification::SubCategory>(), Classification::SubCategory::FixedWingAircraft);
+
+	type = ObservedType::Known<Units::TypeId>({"f14a"});
+	ASSERT_NE(type.GetIf<Units::TypeId>(), nullptr);
+	EXPECT_EQ(type.GetIf<Units::TypeId>()->Value, "f14a");
+}
+
+TEST(ObservationInstanceTest, DistinguishesUnknownAndSelectedLoadouts)
+{
+	Observations::Instance contact;
+	EXPECT_FALSE(contact.CurrentLoadout.IsKnown());
+
+	using ObservedLoadout = Uncertainty::Exact<Equipment::LoadoutId>;
+	contact.CurrentLoadout = ObservedLoadout::Known(Equipment::LoadoutId{"empty"});
+	ASSERT_TRUE(contact.CurrentLoadout.IsKnown());
+	EXPECT_EQ(contact.CurrentLoadout.Value().Value, "empty");
+
+	contact.CurrentLoadout = ObservedLoadout::Known(Equipment::LoadoutId{"anti-submarine"});
+	ASSERT_TRUE(contact.CurrentLoadout.IsKnown());
+	EXPECT_EQ(contact.CurrentLoadout.Value().Value, "anti-submarine");
+
+	contact.CurrentLoadout = ObservedLoadout::Unknown();
+	EXPECT_FALSE(contact.CurrentLoadout.IsKnown());
+
+	EXPECT_FALSE(contact.IsDestroyed.IsKnown());
+	contact.IsDestroyed = Uncertainty::Exact<bool>::Known(false);
+	ASSERT_TRUE(contact.IsDestroyed.IsKnown());
+	EXPECT_FALSE(contact.IsDestroyed.Value());
+
+	contact.IsDestroyed = Uncertainty::Exact<bool>::Known(true);
+	ASSERT_TRUE(contact.IsDestroyed.IsKnown());
+	EXPECT_TRUE(contact.IsDestroyed.Value());
 }

@@ -10,6 +10,8 @@ namespace NavalCommand::Equipment::Api
 	struct Type
 	{
 		TypeId Id;
+		std::optional<std::string> DisplayName;
+		std::optional<std::string> AlternativeDisplayName;
 		std::vector<Equipment::Api::Effect> Effects;
 		std::vector<Equipment::Api::Operation> Operations;
 	};

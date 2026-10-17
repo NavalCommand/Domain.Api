@@ -1,5 +1,6 @@
 #pragma once
 #include <NavalCommand/Equipment/Api/Instance.h>
+#include <NavalCommand/Equipment/Api/LoadoutId.h>
 #include <NavalCommand/Factions/Api/Id.h>
 #include <NavalCommand/Units/Api/AircraftInstance.h>
 #include <NavalCommand/Units/Api/Id.h>
@@ -16,6 +17,9 @@ namespace NavalCommand::Units::Api
 		Id Identity;
 		std::string Name;
 		TypeId Type;
+		// Selected configuration; even an empty configuration has a LoadoutId.
+		Equipment::Api::LoadoutId CurrentLoadout;
+		bool IsDestroyed;
 		Factions::Api::Id Faction;
 		Kinematics Kinematics;
 		std::vector<Equipment::Api::Instance> Equipment;

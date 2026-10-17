@@ -9,11 +9,12 @@ Simulator- and gateway-independent C++23 value contracts. Public headers are org
 | `NavalCommand.Physics.Api` | Physical quantities and positions | None |
 | `NavalCommand.Uncertainty.Api` | Values for known or unknown facts and resolutions | None |
 | `NavalCommand.Error.Api` | Shared error and result contracts | None |
+| `NavalCommand.Classification.Api` | Affiliation, taxonomy hierarchy, and designed-role vocabulary | None |
 | `NavalCommand.Resources.Api` | Resource identifiers, definitions, and values | `NavalCommand.Error.Api` |
-| `NavalCommand.Equipment.Api` | Equipment instances, loadouts, effects, damage, and providers | `NavalCommand.Error.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Resources.Api` |
-| `NavalCommand.Factions.Api` | Faction identity, alignment, and provider contracts | `NavalCommand.Error.Api` |
-| `NavalCommand.Units.Api` | Authoritative unit identity, type, faction, kinematics, equipment, and optional aircraft state | `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Factions.Api`, `NavalCommand.Physics.Api` |
-| `NavalCommand.Observations.Api` | Observer-specific contact identity and uncertain observations | `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Factions.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Units.Api`, `NavalCommand.Uncertainty.Api` |
+| `NavalCommand.Equipment.Api` | Equipment instances, loadouts, effects, damage, and providers | `NavalCommand.Classification.Api`, `NavalCommand.Error.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Resources.Api` |
+| `NavalCommand.Factions.Api` | Faction identity, alignment, and provider contracts | `NavalCommand.Classification.Api`, `NavalCommand.Error.Api` |
+| `NavalCommand.Units.Api` | Authoritative unit identity, type, faction, kinematics, equipment, and optional aircraft state | `NavalCommand.Classification.Api`, `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Factions.Api`, `NavalCommand.Physics.Api` |
+| `NavalCommand.Observations.Api` | Observer-specific contact identity and uncertain observations | `NavalCommand.Classification.Api`, `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Factions.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Units.Api`, `NavalCommand.Uncertainty.Api` |
 | `NavalCommand.Operations.Api` | Current unit activity, navigation, air operations, and read-only unit-state access | `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Observations.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Units.Api`, `NavalCommand.Uncertainty.Api` |
 | `NavalCommand.Orders.Api` | Submitted command payloads and execution state | `NavalCommand.Equipment.Api`, `NavalCommand.Error.Api`, `NavalCommand.Physics.Api`, `NavalCommand.Units.Api` |
 | `NavalCommand.Environment.Api` | Terrain, weather, and time provider contracts | `NavalCommand.Error.Api`, `NavalCommand.Physics.Api` |
@@ -25,13 +26,55 @@ The domain direction is acyclic. In particular, `NavalCommand.Observations.Api` 
 
 **Units represent authoritative unit state; observations represent observer-specific information; operations represent current unit behavior; orders represent requested behavior.**
 
-`Units::Api::Instance` contains authoritative identity, name, type, faction, kinematics, equipment, and an optional aircraft instance. It does not contain activity, navigation, or air-operations state, and it does not depend on observer-specific identifiers or uncertainty types.
+`Units::Api::Instance` contains authoritative identity, name, type, faction, kinematics, equipment, a current loadout ID (including an empty configuration), and an optional aircraft instance. It does not contain activity, navigation, or air-operations state, and it does not depend on observer-specific identifiers or uncertainty types.
 
-`Observations::Api::Id` identifies an observer-side contact and is distinct from `Units::Api::Id`, which identifies an authoritative unit. An observation may be unknown, ambiguous, or uncorrelated with a known true unit. Observation values use the uncertainty contracts where information is not fully known.
+`Observations::Api::Id` identifies an observer-side contact and is distinct from `Units::Api::Id`, which identifies an authoritative unit. An observation may be unknown, ambiguous, or uncorrelated with a known true unit. Observation values use the uncertainty contracts where information is not fully known. `Observations::Api::Instance::Type` resolves one observer-supported classification level: exact `Units::Api::TypeId`, `Classification::Api::SubCategory`, `Classification::Api::Category`, `Classification::Api::Dimension`, or unknown. A more precise variant must never be inferred from hidden native truth. `CurrentLoadout` is `Exact<Equipment::Api::LoadoutId>`: unknown or a known selected loadout (including an empty configuration).
 
 `Operations::Api::UnitState` is a separate projection of current operational behavior. It contains an `Activity` value and optional navigation and air-operations values. The `std::monostate` activity means unknown or unreported activity, distinct from `Idle`; absent navigation or air-operations data is left absent. An activity that refers to an observed contact uses `Observations::Api::Id`, including engagement targets and evasive-maneuver danger sources. `Operations::Api::IProvider` accepts a true `Units::Api::Id` for the friendly unit whose state is requested; its implementation is scoped to the controlling faction.
 
 `NavalCommand.Orders.Api` remains separate from `NavalCommand.Operations.Api`: an order records requested behavior, while operations report current behavior. `Orders::Api::ExecutionRequest::Executor` remains a `Units::Api::Id` because it identifies the friendly unit executing the request. The order model does not use the operations projection.
+
+## Kinematic semantics
+
+`Units::Api::Kinematics::Heading` is authoritative platform/body orientation;
+`CourseOverGround` is ground movement direction. Both are clockwise from geodetic
+north and can differ during drift or maneuvering.
+
+`Observations::Api::Kinematics::Heading` is the source's reported track heading.
+It does not guarantee knowledge of the target's bow/nose orientation. A source
+may derive this report from track motion. Observation `CourseOverGround` reports
+movement direction; it may share the heading's source. Consumers, including AI
+controllers, must not treat the two populated fields as independent measurements
+or use their agreement as proof of physical orientation. `Exact::Known` expresses
+availability of the reported value without claiming independent verification of
+orientation. Unknown remains distinct from a reported zero.
+
+## Classification semantics
+
+`Units::Api::Type` stores exactly one authoritative `UnitSubCategory`. The constexpr `Classification::Api::GetCategory(SubCategory)` function is declared in `SubCategory.h`, and `GetDimension(Category)` in `Category.h`. Together, these derive the complete classification hierarchy without redundant unit-type fields. These functions require declared enum values; adapters must validate untrusted numeric codes before casting.
+
+An `Observations::Api::Instance::Type` is an independent observer-specific `Resolution<TypeId, SubCategory, Category, Dimension>`; it can report the less specific classification actually supported by the selected observer. Do not promote an observation using hidden native type data.
+
+The domain taxonomy includes generic fallback subcategories such as `Missile`, `Torpedo`, `SurfaceVessel`, and `Submarine`, alongside specialized values such as `CruiseMissile`, `HeavyweightTorpedo`, `Destroyer`, and `AttackSubmarine`. It may be more precise than Sea Power's native runtime types: native types without a reliable subtype distinction can use a generic fallback, while supported specialized classifications remain part of the domain vocabulary.
+
+`Units::Api::Type::PlatformRoles` describes roles intrinsic to the platform, independently of its selected loadout. `Equipment::Api::Loadout::Roles` describes additional roles supported by that configuration. Both represent designed military purposes, not active missions, orders, or readiness. Configuration-dependent roles belong on the loadout, and platform roles always contribute to the complete role set. Even a platform without configurable equipment should have a named standard/empty loadout in a complete type catalogue.
+
+`Units::Api::Type::PrimaryPlatformRole` is an optional, explicit intrinsic mission
+used to choose a presentation specialization. It uses the same engine-independent
+`Classification::Api::Role` enum and, when present, must also occur in `PlatformRoles`.
+It is independent of subcategory, the current loadout and active missions. Absence
+means unspecified; consumers must not choose the first role or a hard-coded
+priority from the full capability list. The gateway validates membership and enum
+values. Primary role does not change `GetRoles` union semantics.
+`Role::GuidedMissile` denotes a platform's guided-missile warfare capability,
+independently of its physical class. A guided missile cruiser remains a Cruiser
+subcategory; its primary role can be GuidedMissile.
+
+For a configuration, the effective roles are `PlatformRoles ∪ Loadout::Roles`. `Units::Api::GetRoles(Type)` returns the deduplicated union of `PlatformRoles` and every loadout's roles, describing all roles potentially supported by the type rather than a currently selected configuration. Ordering is deterministic: platform roles first, followed by roles in loadout declaration order, with each vector's order preserved. Empty role vectors mean no roles are specified.
+
+`Units::Api::Instance::CurrentLoadout` is a loadout ID and must correspond to a loadout of the referenced type. The observer's `Exact<LoadoutId>` represents unknown or known selected configuration; merely identifying the type does not disclose which configuration is active.
+
+Missile flight class (for example, cruise/ballistic) must not be confused with intended target (air/surface/land); the latter belongs to sourced roles and equipment/weapon properties. The classification vocabulary is simulator-independent, not a complete APP-6 symbol catalogue. A future symbology adapter maps this model to NATO symbols.
 
 ## Build and testing
 
